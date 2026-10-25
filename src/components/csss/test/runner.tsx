@@ -13,12 +13,15 @@ import { SectionBrief } from "@/components/csss/test/section-brief";
 import { TestScreen } from "@/components/csss/test/test-screen";
 import { SubmitModal, type SubmitSummary } from "@/components/csss/test/submit-modal";
 import { Analysis } from "@/components/csss/test/analysis";
+import { scoreAttempt } from "@/lib/csss-scoring";
+import { saveAttempt } from "@/lib/attempts";
 
 type Stage = "instructions" | "test" | "analysis";
 
 const totalSeconds = csssTestMeta.durationMinutes * 60;
+const testId = "mock-01";
 
-export function TestRunner() {
+export function TestRunner({ studentName }: { studentName?: string }) {
   const router = useRouter();
   const [stage, setStage] = useState<Stage>("instructions");
   const [current, setCurrent] = useState(0);
@@ -29,6 +32,8 @@ export function TestRunner() {
   const [secondsLeft, setSecondsLeft] = useState(totalSeconds);
   const [showSubmit, setShowSubmit] = useState(false);
   const secondsRef = useRef(secondsLeft);
+  const answersRef = useRef(answers);
+  const savedRef = useRef(false);
 
   const activeSection = sectionIndexForQuestion(current);
   const showBrief = stage === "test" && !startedSections[activeSection];
@@ -38,12 +43,35 @@ export function TestRunner() {
   }, [secondsLeft]);
 
   useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
+
+  const persistResult = useCallback(() => {
+    if (savedRef.current) return;
+    savedRef.current = true;
+    const score = scoreAttempt(
+      csssQuestions,
+      answersRef.current,
+      csssTestMeta.marksCorrect,
+      csssTestMeta.marksWrong,
+    );
+    void saveAttempt({
+      testId,
+      testTitle: csssTestMeta.title,
+      score,
+    }).catch(() => {
+      savedRef.current = false;
+    });
+  }, []);
+
+  useEffect(() => {
     if (stage !== "test" || showBrief) return;
     const id = setInterval(() => {
       const nextValue = secondsRef.current - 1;
       if (nextValue <= 0) {
         clearInterval(id);
         setSecondsLeft(0);
+        persistResult();
         setStage("analysis");
         return;
       }
@@ -51,7 +79,7 @@ export function TestRunner() {
       setSecondsLeft(nextValue);
     }, 1000);
     return () => clearInterval(id);
-  }, [stage, showBrief]);
+  }, [stage, showBrief, persistResult]);
 
   const goTo = useCallback((index: number) => {
     setCurrent(index);
@@ -66,11 +94,12 @@ export function TestRunner() {
 
   const advanceOrFinish = useCallback(() => {
     if (current >= csssQuestions.length - 1) {
+      persistResult();
       setStage("analysis");
       return;
     }
     next();
-  }, [current, next]);
+  }, [current, next, persistResult]);
 
   const handleSelect = useCallback((questionIndex: number, optionIndex: number) => {
     setAnswers((prev) => ({ ...prev, [questionIndex]: optionIndex }));
@@ -97,6 +126,8 @@ export function TestRunner() {
     setCurrent(0);
     setSecondsLeft(totalSeconds);
     setShowSubmit(false);
+    answersRef.current = {};
+    savedRef.current = false;
   }, []);
 
   const summary: SubmitSummary = useMemo(() => {
@@ -137,6 +168,7 @@ export function TestRunner() {
         totalQuestions={csssQuestions.length}
         marksCorrect={csssTestMeta.marksCorrect}
         marksWrong={csssTestMeta.marksWrong}
+        studentName={studentName}
         onBack={() => router.push("/csss")}
         onBegin={() => setStage("test")}
       />
@@ -201,6 +233,7 @@ export function TestRunner() {
           onClose={() => setShowSubmit(false)}
           onSubmit={() => {
             setShowSubmit(false);
+            persistResult();
             setStage("analysis");
           }}
         />

@@ -12,6 +12,7 @@ export function Instructions({
   totalQuestions,
   marksCorrect,
   marksWrong,
+  studentName = "Student",
   onBack,
   onBegin,
 }: {
@@ -21,6 +22,7 @@ export function Instructions({
   totalQuestions: number;
   marksCorrect: number;
   marksWrong: number;
+  studentName?: string;
   onBack: () => void;
   onBegin: () => void;
 }) {
@@ -129,7 +131,7 @@ export function Instructions({
           <span className="flex h-28 w-28 items-center justify-center rounded-full bg-ink text-bg-light">
             <User className="h-14 w-14" strokeWidth={1.6} />
           </span>
-          <p className="mt-6 text-2xl font-bold text-ink">Student Name</p>
+          <p className="mt-6 text-2xl font-bold text-ink">{studentName}</p>
         </aside>
       </div>
     </div>

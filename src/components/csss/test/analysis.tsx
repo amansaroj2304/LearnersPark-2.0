@@ -3,11 +3,8 @@
 import { Check, RotateCcw, X } from "lucide-react";
 import { Logo } from "@/components/layout/logo";
 import { cn, splitEmphasis } from "@/lib/utils";
-import {
-  csssSectionStarts,
-  csssSections,
-  type CsssQuestion,
-} from "@/data/csss-questions";
+import { csssSections, type CsssQuestion } from "@/data/csss-questions";
+import { scoreAttempt } from "@/lib/csss-scoring";
 import { QuestionVisual } from "@/components/csss/test/question-visual";
 
 export function Analysis({
@@ -27,39 +24,13 @@ export function Analysis({
   onReattempt: () => void;
   onExit: () => void;
 }) {
-  let attempted = 0;
-  let correct = 0;
-  questions.forEach((question, index) => {
-    if (!question || answers[index] === undefined) return;
-    attempted += 1;
-    if (answers[index] === question.answer) correct += 1;
-  });
-  const wrong = attempted - correct;
-  const score = correct * marksCorrect - wrong * marksWrong;
-  const accuracy = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
-  const maxScore = questions.length * marksCorrect;
+  const { attempted, correct, wrong, score, accuracy, maxScore, sections } =
+    scoreAttempt(questions, answers, marksCorrect, marksWrong);
 
-  const sectionStats = csssSections.map((section, sectionIndex) => {
-    const start = csssSectionStarts[sectionIndex];
-    let sectionAttempted = 0;
-    let sectionCorrect = 0;
-    for (let offset = 0; offset < section.questionCount; offset += 1) {
-      const questionIndex = start + offset;
-      const question = questions[questionIndex];
-      const selected = answers[questionIndex];
-      if (!question || selected === undefined) continue;
-      sectionAttempted += 1;
-      if (selected === question.answer) sectionCorrect += 1;
-    }
-    const sectionWrong = sectionAttempted - sectionCorrect;
-    return {
-      section,
-      attempted: sectionAttempted,
-      correct: sectionCorrect,
-      wrong: sectionWrong,
-      score: sectionCorrect * marksCorrect - sectionWrong * marksWrong,
-    };
-  });
+  const sectionStats = sections.map((row, sectionIndex) => ({
+    section: csssSections[sectionIndex],
+    ...row,
+  }));
 
   const stats = [
     { label: "Score", value: score, accent: "text-crimson ring-crimson/30" },
