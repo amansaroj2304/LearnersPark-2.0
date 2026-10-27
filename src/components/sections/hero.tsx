@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, FileText } from "lucide-react";
 import { buttonClasses } from "@/components/ui/button";
+import { GetStartedDialog } from "@/components/auth/get-started-dialog";
 import { Container } from "@/components/ui/container";
 import {
   DiamondShape,
@@ -24,7 +25,7 @@ export function Hero() {
       <RightVisual />
 
       <Container className="relative z-20">
-        <div className="flex max-w-[46rem] flex-col py-12 sm:py-16 lg:min-h-[760px] lg:justify-center lg:py-24">
+        <div className="flex max-w-[46rem] flex-col py-10 sm:py-16 lg:min-h-[760px] lg:justify-center lg:py-24">
           <div className="flex items-center gap-4">
             <span aria-hidden className="h-[2px] w-10 shrink-0 bg-crimson sm:w-16" />
             <p className="text-[0.7rem] font-semibold tracking-[0.25em] text-ink/80 uppercase sm:text-sm">
@@ -43,7 +44,7 @@ export function Hero() {
             </span>
           </h1>
 
-          <div className="mt-7 flex items-center gap-6">
+          <div className="mt-5 flex items-center gap-6 sm:mt-7">
             <p className="text-lg font-bold tracking-[0.2em] uppercase text-ink sm:text-2xl">
               NDA
               <Dot variant="exam" />
@@ -57,13 +58,12 @@ export function Hero() {
             />
           </div>
 
-          <p className="mt-7 text-xl font-normal text-ink sm:text-[1.6rem]">
+          <p className="mt-5 text-xl font-normal text-ink sm:mt-7 sm:text-[1.6rem]">
             Start your SSB journey for free
           </p>
 
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-            <Link
-              href="#get-started"
+          <div className="mt-5 flex flex-col gap-3 sm:mt-7 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+            <GetStartedDialog
               className={buttonClasses(
                 "primary",
                 "lg",
@@ -72,7 +72,7 @@ export function Hero() {
             >
               Get Started for Free
               <ArrowRight className="h-4.5 w-4.5" strokeWidth={2.6} />
-            </Link>
+            </GetStartedDialog>
             <div className="grid grid-cols-2 gap-3 sm:contents">
               <Link
                 href="/csss"

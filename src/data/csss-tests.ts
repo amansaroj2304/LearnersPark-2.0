@@ -11,6 +11,16 @@ export type CsssTestDefinition = {
   questions: (CsssQuestion | null)[];
 };
 
+export type TestResultSummary = {
+  testId: string;
+  attemptCount: number;
+  score: number;
+  maxScore: number;
+  attemptedAt: string;
+  rank: number | null;
+  total: number | null;
+};
+
 export const defaultCsssTestId = "mock-01";
 
 export const csssTests: Record<string, CsssTestDefinition> = {

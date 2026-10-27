@@ -3,8 +3,10 @@
 import { useMemo, useState } from "react";
 import { AppHeader } from "@/components/csss/app-header";
 import { TestCard, type CsssTest } from "@/components/csss/test-card";
+import { TestResultCard } from "@/components/csss/test-result-card";
 import { SummaryPanel } from "@/components/csss/summary-panel";
 import { Container } from "@/components/ui/container";
+import type { TestResultSummary } from "@/data/csss-tests";
 import { cn } from "@/lib/utils";
 
 const tests: CsssTest[] = [
@@ -40,7 +42,11 @@ const tabs = [
 
 type TabId = (typeof tabs)[number]["id"];
 
-export function TestsBrowser() {
+export function TestsBrowser({
+  results = {},
+}: {
+  results?: Record<string, TestResultSummary>;
+}) {
   const [tab, setTab] = useState<TabId>("all");
   const [query, setQuery] = useState("");
 
@@ -105,7 +111,17 @@ export function TestsBrowser() {
 
             <div className="mt-8 flex flex-col gap-6">
               {visible.length > 0 ? (
-                visible.map((test) => <TestCard key={test.id} test={test} />)
+                visible.map((test) =>
+                  results[test.id] ? (
+                    <TestResultCard
+                      key={test.id}
+                      title={test.title}
+                      result={results[test.id]}
+                    />
+                  ) : (
+                    <TestCard key={test.id} test={test} />
+                  ),
+                )
               ) : (
                 <div className="rounded-2xl border border-dashed border-ink/15 bg-white/60 px-6 py-14 text-center text-ink/55">
                   No tests found

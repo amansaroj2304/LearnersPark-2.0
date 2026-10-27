@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { buttonClasses } from "@/components/ui/button";
+import { GetStartedDialog } from "@/components/auth/get-started-dialog";
+import { AccountMenu } from "@/components/auth/account-menu";
 import { Logo } from "@/components/layout/logo";
 import { Container } from "@/components/ui/container";
 import { navLinks } from "@/lib/data";
@@ -44,13 +46,20 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <Link
-          href="#get-started"
-          className={buttonClasses("primary", "md", "gap-2.5 md:h-12 md:px-9")}
-        >
-          Get Started
-          <ArrowRight className="h-4 w-4" strokeWidth={2.6} />
-        </Link>
+        <AccountMenu
+          fallback={
+            <GetStartedDialog
+              className={buttonClasses(
+                "primary",
+                "sm",
+                "gap-2 md:h-12 md:gap-2.5 md:px-9 md:text-[0.95rem]",
+              )}
+            >
+              Get Started
+              <ArrowRight className="h-4 w-4" strokeWidth={2.6} />
+            </GetStartedDialog>
+          }
+        />
       </Container>
     </header>
   );

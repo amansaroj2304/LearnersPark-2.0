@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -39,7 +40,7 @@ function initials(name: string) {
     .join("");
 }
 
-export function AccountMenu() {
+export function AccountMenu({ fallback }: { fallback?: ReactNode }) {
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [ready, setReady] = useState(false);
@@ -93,14 +94,24 @@ export function AccountMenu() {
   }
 
   if (!ready) {
-    return <span className="h-10 w-10 rounded-full bg-ink/10" aria-hidden="true" />;
+    return (
+      <>
+        {fallback ?? (
+          <span className="h-10 w-10 rounded-full bg-ink/10" aria-hidden="true" />
+        )}
+      </>
+    );
   }
 
   if (!profile) {
     return (
-      <Link href="/login" className={buttonClasses("primary", "md", "gap-2.5")}>
-        Sign in
-      </Link>
+      <>
+        {fallback ?? (
+          <Link href="/login" className={buttonClasses("primary", "md", "gap-2.5")}>
+            Sign in
+          </Link>
+        )}
+      </>
     );
   }
 

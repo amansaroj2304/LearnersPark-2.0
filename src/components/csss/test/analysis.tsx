@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, RotateCcw, X } from "lucide-react";
+import { Check, RotateCcw, TriangleAlert, X } from "lucide-react";
 import { Logo } from "@/components/layout/logo";
 import { cn, splitEmphasis } from "@/lib/utils";
 import { csssSections, type CsssQuestion } from "@/data/csss-questions";
@@ -13,6 +13,8 @@ export function Analysis({
   answers,
   marksCorrect,
   marksWrong,
+  saveError,
+  onRetrySave,
   onReattempt,
   onExit,
 }: {
@@ -21,6 +23,8 @@ export function Analysis({
   answers: Record<number, number>;
   marksCorrect: number;
   marksWrong: number;
+  saveError?: string | null;
+  onRetrySave?: () => void;
   onReattempt: () => void;
   onExit: () => void;
 }) {
@@ -75,6 +79,25 @@ export function Analysis({
         <p className="mt-2 text-sm font-medium tracking-[0.14em] text-ink/45 uppercase">
           Overall Performance Summary
         </p>
+
+        {saveError && (
+          <div className="mt-6 flex items-start gap-3 rounded-xl border border-gold/40 bg-gold/10 px-4 py-3 text-sm text-ink">
+            <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-gold" strokeWidth={2.4} />
+            <div className="flex-1">
+              <p className="font-semibold">Your result was not saved.</p>
+              <p className="mt-0.5 text-ink/65">{saveError}</p>
+            </div>
+            {onRetrySave && (
+              <button
+                type="button"
+                onClick={onRetrySave}
+                className="shrink-0 rounded-lg border border-ink/15 bg-white px-3 py-1.5 text-xs font-semibold text-ink transition-colors hover:bg-ink/5"
+              >
+                Retry
+              </button>
+            )}
+          </div>
+        )}
 
         <div className="mt-6 rounded-2xl border border-ink/10 bg-white p-6 sm:p-8">
           <div className="flex flex-wrap items-center justify-center gap-6 sm:justify-between">

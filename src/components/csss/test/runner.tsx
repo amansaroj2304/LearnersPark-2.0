@@ -35,6 +35,7 @@ export function TestRunner({
   const [startedSections, setStartedSections] = useState<Record<number, boolean>>({});
   const [secondsLeft, setSecondsLeft] = useState(totalSeconds);
   const [showSubmit, setShowSubmit] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const secondsRef = useRef(secondsLeft);
   const answersRef = useRef(answers);
   const savedRef = useRef(false);
@@ -63,9 +64,19 @@ export function TestRunner({
       testId: test.id,
       testTitle: test.title,
       score,
-    }).catch(() => {
-      savedRef.current = false;
-    });
+    })
+      .then((result) => {
+        if (result?.error) {
+          savedRef.current = false;
+          setSaveError(result.error);
+        } else {
+          setSaveError(null);
+        }
+      })
+      .catch(() => {
+        savedRef.current = false;
+        setSaveError("We couldn't save your attempt. Please try again.");
+      });
   }, [test]);
 
   useEffect(() => {
@@ -130,6 +141,7 @@ export function TestRunner({
     setCurrent(0);
     setSecondsLeft(totalSeconds);
     setShowSubmit(false);
+    setSaveError(null);
     answersRef.current = {};
     savedRef.current = false;
   }, [totalSeconds]);
@@ -187,6 +199,8 @@ export function TestRunner({
         answers={answers}
         marksCorrect={test.marksCorrect}
         marksWrong={test.marksWrong}
+        saveError={saveError}
+        onRetrySave={persistResult}
         onReattempt={() => {
           resetTest();
           setStage("test");
