@@ -43,7 +43,7 @@ export function TestCard({ test }: { test: CsssTest }) {
 
         <div className="flex shrink-0 flex-col items-center gap-2">
           <Link
-            href="/csss/test"
+            href={`/csss/test?test=${test.id}`}
             className={buttonClasses(
               "primary",
               "md",

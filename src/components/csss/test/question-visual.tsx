@@ -351,6 +351,209 @@ function diagram(
           />
         </>
       );
+    case "t2_mirror_horizontal":
+      return (
+        <>
+          <Grid />
+          <line
+            x1={120}
+            y1={10}
+            x2={120}
+            y2={170}
+            stroke={OLIVE}
+            strokeWidth={2}
+            strokeDasharray="7 6"
+          />
+          <Dot cx={174} cy={36} />
+        </>
+      );
+    case "t2_water_reflection":
+      return (
+        <>
+          <Dot cx={174} cy={36} />
+          <path
+            d="M40 104 q10 -9 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0"
+            fill="none"
+            stroke={OLIVE}
+            strokeWidth={2}
+          />
+          <text
+            x={120}
+            y={132}
+            textAnchor="middle"
+            fontSize={11}
+            fill={INK}
+            fillOpacity={0.45}
+          >
+            water line
+          </text>
+        </>
+      );
+    case "t2_rotation":
+      return (
+        <>
+          <Square />
+          <Dot cx={120} cy={42} />
+          <path
+            d="M120 12 A 78 78 0 0 0 42 90"
+            fill="none"
+            stroke={OLIVE}
+            strokeWidth={2}
+            markerEnd={`url(#${arrowOlive})`}
+          />
+        </>
+      );
+    case "t2_path":
+      return (
+        <>
+          <Grid />
+          <line
+            x1={120}
+            y1={90}
+            x2={120}
+            y2={126}
+            stroke={OLIVE}
+            strokeWidth={2.5}
+            markerEnd={`url(#${arrowOlive})`}
+          />
+          <line
+            x1={120}
+            y1={126}
+            x2={84}
+            y2={126}
+            stroke={OLIVE}
+            strokeWidth={2.5}
+            markerEnd={`url(#${arrowOlive})`}
+          />
+          <line
+            x1={84}
+            y1={126}
+            x2={84}
+            y2={90}
+            stroke={OLIVE}
+            strokeWidth={2.5}
+            markerEnd={`url(#${arrowOlive})`}
+          />
+          <Dot cx={120} cy={90} r={6} />
+        </>
+      );
+    case "t2_cube":
+      return (
+        <>
+          <rect x={72} y={72} width={76} height={76} fill="none" stroke={INK} strokeWidth={2} />
+          <polygon points="72,72 92,52 168,52 148,72" fill="none" stroke={INK} strokeWidth={2} />
+          <polygon points="148,72 168,52 168,128 148,148" fill="none" stroke={INK} strokeWidth={2} />
+          <Dot cx={120} cy={62} r={8} />
+          <line
+            x1={182}
+            y1={166}
+            x2={60}
+            y2={166}
+            stroke={OLIVE}
+            strokeWidth={2}
+            markerEnd={`url(#${arrowOlive})`}
+          />
+        </>
+      );
+    case "t2_direction":
+      return (
+        <>
+          <circle
+            cx={120}
+            cy={90}
+            r={58}
+            fill="none"
+            stroke={INK}
+            strokeOpacity={0.2}
+            strokeWidth={1.5}
+          />
+          <text x={120} y={46} textAnchor="middle" fontSize={13} fontWeight={700} fill={INK} fillOpacity={0.6}>
+            N
+          </text>
+          <text x={120} y={150} textAnchor="middle" fontSize={13} fontWeight={700} fill={INK} fillOpacity={0.6}>
+            S
+          </text>
+          <text x={172} y={95} textAnchor="middle" fontSize={13} fontWeight={700} fill={INK} fillOpacity={0.6}>
+            E
+          </text>
+          <text x={68} y={95} textAnchor="middle" fontSize={13} fontWeight={700} fill={INK} fillOpacity={0.6}>
+            W
+          </text>
+          <line
+            x1={120}
+            y1={90}
+            x2={120}
+            y2={44}
+            stroke={CRIMSON}
+            strokeWidth={3}
+            markerEnd={`url(#${arrowCrimson})`}
+          />
+        </>
+      );
+    case "t2_grid_rotation":
+      return (
+        <>
+          <Grid />
+          <Dot cx={66} cy={36} />
+          <path
+            d="M120 12 A 78 78 0 0 1 198 90"
+            fill="none"
+            stroke={OLIVE}
+            strokeWidth={2}
+            markerEnd={`url(#${arrowOlive})`}
+          />
+        </>
+      );
+    case "t2_line_mirror":
+      return (
+        <>
+          <line
+            x1={120}
+            y1={12}
+            x2={120}
+            y2={168}
+            stroke={OLIVE}
+            strokeWidth={2}
+            strokeDasharray="7 6"
+          />
+          <line x1={76} y1={140} x2={168} y2={64} stroke={CRIMSON} strokeWidth={3} />
+        </>
+      );
+    case "t2_arrow_rotation":
+      return (
+        <>
+          <line
+            x1={120}
+            y1={138}
+            x2={120}
+            y2={40}
+            stroke={CRIMSON}
+            strokeWidth={3}
+            markerEnd={`url(#${arrowCrimson})`}
+          />
+          <path
+            d="M120 12 A 78 78 0 0 1 198 90"
+            fill="none"
+            stroke={OLIVE}
+            strokeWidth={2}
+            markerEnd={`url(#${arrowOlive})`}
+          />
+        </>
+      );
+    case "t2_coordinate":
+      return (
+        <>
+          <Grid />
+          <polyline
+            points="120,90 156,90 156,126"
+            fill="none"
+            stroke={OLIVE}
+            strokeWidth={2.5}
+            markerEnd={`url(#${arrowOlive})`}
+          />
+          <Dot cx={120} cy={90} r={6} />
+        </>
+      );
     default:
       return null;
   }

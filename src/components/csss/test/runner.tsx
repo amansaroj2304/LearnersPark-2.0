@@ -3,11 +3,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  csssQuestions,
   csssSections,
-  csssTestMeta,
   sectionIndexForQuestion,
 } from "@/data/csss-questions";
+import type { CsssTestDefinition } from "@/data/csss-tests";
 import { Instructions } from "@/components/csss/test/instructions";
 import { SectionBrief } from "@/components/csss/test/section-brief";
 import { TestScreen } from "@/components/csss/test/test-screen";
@@ -18,10 +17,15 @@ import { saveAttempt } from "@/lib/attempts";
 
 type Stage = "instructions" | "test" | "analysis";
 
-const totalSeconds = csssTestMeta.durationMinutes * 60;
-const testId = "mock-01";
-
-export function TestRunner({ studentName }: { studentName?: string }) {
+export function TestRunner({
+  test,
+  studentName,
+}: {
+  test: CsssTestDefinition;
+  studentName?: string;
+}) {
+  const totalSeconds = test.durationMinutes * 60;
+  const totalQuestions = test.questions.length;
   const router = useRouter();
   const [stage, setStage] = useState<Stage>("instructions");
   const [current, setCurrent] = useState(0);
@@ -50,19 +54,19 @@ export function TestRunner({ studentName }: { studentName?: string }) {
     if (savedRef.current) return;
     savedRef.current = true;
     const score = scoreAttempt(
-      csssQuestions,
+      test.questions,
       answersRef.current,
-      csssTestMeta.marksCorrect,
-      csssTestMeta.marksWrong,
+      test.marksCorrect,
+      test.marksWrong,
     );
     void saveAttempt({
-      testId,
-      testTitle: csssTestMeta.title,
+      testId: test.id,
+      testTitle: test.title,
       score,
     }).catch(() => {
       savedRef.current = false;
     });
-  }, []);
+  }, [test]);
 
   useEffect(() => {
     if (stage !== "test" || showBrief) return;
@@ -87,19 +91,19 @@ export function TestRunner({ studentName }: { studentName?: string }) {
   }, []);
 
   const next = useCallback(() => {
-    const target = Math.min(current + 1, csssQuestions.length - 1);
+    const target = Math.min(current + 1, totalQuestions - 1);
     setCurrent(target);
     setVisited((prev) => ({ ...prev, [target]: true }));
-  }, [current]);
+  }, [current, totalQuestions]);
 
   const advanceOrFinish = useCallback(() => {
-    if (current >= csssQuestions.length - 1) {
+    if (current >= totalQuestions - 1) {
       persistResult();
       setStage("analysis");
       return;
     }
     next();
-  }, [current, next, persistResult]);
+  }, [current, next, persistResult, totalQuestions]);
 
   const handleSelect = useCallback((questionIndex: number, optionIndex: number) => {
     setAnswers((prev) => ({ ...prev, [questionIndex]: optionIndex }));
@@ -128,14 +132,14 @@ export function TestRunner({ studentName }: { studentName?: string }) {
     setShowSubmit(false);
     answersRef.current = {};
     savedRef.current = false;
-  }, []);
+  }, [totalSeconds]);
 
   const summary: SubmitSummary = useMemo(() => {
     let answered = 0;
     let notAnswered = 0;
     let markedForReview = 0;
     let notVisited = 0;
-    csssQuestions.forEach((_, index) => {
+    test.questions.forEach((_, index) => {
       if (marked[index]) {
         markedForReview += 1;
         return;
@@ -151,23 +155,23 @@ export function TestRunner({ studentName }: { studentName?: string }) {
       notVisited += 1;
     });
     return {
-      questions: csssQuestions.length,
+      questions: totalQuestions,
       answered,
       notAnswered,
       markedForReview,
       notVisited,
     };
-  }, [answers, marked, visited]);
+  }, [answers, marked, visited, test.questions, totalQuestions]);
 
   if (stage === "instructions") {
     return (
       <Instructions
-        title={csssTestMeta.title}
-        durationMinutes={csssTestMeta.durationMinutes}
-        maxMarks={csssQuestions.length * csssTestMeta.marksCorrect}
-        totalQuestions={csssQuestions.length}
-        marksCorrect={csssTestMeta.marksCorrect}
-        marksWrong={csssTestMeta.marksWrong}
+        title={test.title}
+        durationMinutes={test.durationMinutes}
+        maxMarks={totalQuestions * test.marksCorrect}
+        totalQuestions={totalQuestions}
+        marksCorrect={test.marksCorrect}
+        marksWrong={test.marksWrong}
         studentName={studentName}
         onBack={() => router.push("/csss")}
         onBegin={() => setStage("test")}
@@ -178,11 +182,11 @@ export function TestRunner({ studentName }: { studentName?: string }) {
   if (stage === "analysis") {
     return (
       <Analysis
-        title={csssTestMeta.title}
-        questions={csssQuestions}
+        title={test.title}
+        questions={test.questions}
         answers={answers}
-        marksCorrect={csssTestMeta.marksCorrect}
-        marksWrong={csssTestMeta.marksWrong}
+        marksCorrect={test.marksCorrect}
+        marksWrong={test.marksWrong}
         onReattempt={() => {
           resetTest();
           setStage("test");
@@ -210,11 +214,11 @@ export function TestRunner({ studentName }: { studentName?: string }) {
   return (
     <>
       <TestScreen
-        title={csssTestMeta.title}
-        questions={csssQuestions}
+        title={test.title}
+        questions={test.questions}
         secondsLeft={secondsLeft}
-        marksCorrect={csssTestMeta.marksCorrect}
-        marksWrong={csssTestMeta.marksWrong}
+        marksCorrect={test.marksCorrect}
+        marksWrong={test.marksWrong}
         current={current}
         answers={answers}
         marked={marked}
