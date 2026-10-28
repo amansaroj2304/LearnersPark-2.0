@@ -1,6 +1,7 @@
 import type { CsssQuestion } from "@/data/csss-questions";
 import { csssQuestions, csssTestMeta } from "@/data/csss-questions";
 import { csssTest2Meta, csssTest2Questions } from "@/data/csss-test-2";
+import { csssTest3Meta, csssTest3Questions } from "@/data/csss-test-3";
 
 export type CsssTestDefinition = {
   id: string;
@@ -33,6 +34,11 @@ export const csssTests: Record<string, CsssTestDefinition> = {
     id: "mock-02",
     ...csssTest2Meta,
     questions: csssTest2Questions,
+  },
+  "mock-03": {
+    id: "mock-03",
+    ...csssTest3Meta,
+    questions: csssTest3Questions,
   },
 };
 

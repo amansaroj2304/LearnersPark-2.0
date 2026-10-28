@@ -32,6 +32,17 @@ const tests: CsssTest[] = [
     languages: ["English", "Hindi"],
     free: true,
   },
+  {
+    id: "mock-03",
+    title: "CSSS Mock Test 03",
+    kind: "full",
+    sections: "All Sections",
+    questions: 70,
+    marks: 70,
+    minutes: 10,
+    languages: ["English", "Hindi"],
+    free: true,
+  },
 ];
 
 const tabs = [
