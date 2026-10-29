@@ -20,3 +20,48 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }
+
+.legal-prose section + section {
+  margin-top: 2rem;
+}
+
+.legal-prose h2 {
+  margin-bottom: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+}
+
+.legal-prose h3 {
+  margin-top: 1.25rem;
+  margin-bottom: 0.35rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.legal-prose p,
+.legal-prose li {
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: color-mix(in srgb, var(--color-ink) 72%, transparent);
+}
+
+.legal-prose p + p {
+  margin-top: 0.75rem;
+}
+
+.legal-prose ul {
+  display: grid;
+  gap: 0.4rem;
+  padding-left: 1.25rem;
+  list-style: disc;
+}
+
+.legal-prose a {
+  font-weight: 600;
+  color: var(--color-crimson);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
