@@ -11,7 +11,8 @@ import type { SectionScore } from "@/lib/csss-scoring";
 export const instant = false;
 
 export const metadata: Metadata = {
-  title: "My Progress | Learners Park",
+  title: "My Progress",
+  robots: { index: false, follow: false },
   description: "Track your CSSS test scores and section-wise performance.",
 };
 
@@ -65,7 +66,7 @@ export default async function ProgressPage() {
             <h1 className="text-[clamp(1.5rem,3vw,2rem)] font-extrabold tracking-[-0.02em] text-ink">
               My Progress
             </h1>
-            <p className="text-sm text-ink/55">
+            <p className="text-sm text-ink/60">
               Your CSSS test results and section-wise breakdown.
             </p>
           </div>
@@ -74,7 +75,7 @@ export default async function ProgressPage() {
         {!latest ? (
           <div className="mt-10 rounded-2xl border border-ink/10 bg-white p-10 text-center">
             <p className="text-lg font-bold text-ink">No attempts yet</p>
-            <p className="mt-2 text-sm text-ink/55">
+            <p className="mt-2 text-sm text-ink/60">
               Attempt a CSSS mock test to see your score and progress here.
             </p>
             <Link
@@ -88,7 +89,7 @@ export default async function ProgressPage() {
           <>
             <section className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
               <div className="rounded-2xl border border-ink/10 bg-white p-6 sm:p-7">
-                <span className="text-xs font-bold tracking-[0.14em] text-ink/45 uppercase">
+                <span className="text-xs font-bold tracking-[0.14em] text-ink/60 uppercase">
                   Latest attempt
                 </span>
                 <p className="mt-2 text-sm font-semibold text-ink/70">
@@ -111,7 +112,7 @@ export default async function ProgressPage() {
                     <p className="mt-1">
                       Correct {latest.correct} · Wrong {latest.wrong}
                     </p>
-                    <p className="mt-1 text-xs text-ink/45">
+                    <p className="mt-1 text-xs text-ink/60">
                       {formatDate(latest.created_at)}
                     </p>
                   </div>
@@ -119,13 +120,13 @@ export default async function ProgressPage() {
               </div>
 
               <div className="rounded-2xl border border-ink/10 bg-white p-6 sm:p-7">
-                <span className="text-xs font-bold tracking-[0.14em] text-ink/45 uppercase">
+                <span className="text-xs font-bold tracking-[0.14em] text-ink/60 uppercase">
                   Section breakdown
                 </span>
                 <div className="mt-4 overflow-x-auto">
                   <table className="w-full min-w-[520px] border-collapse text-sm">
                     <thead>
-                      <tr className="text-left text-xs font-bold text-ink/45 uppercase">
+                      <tr className="text-left text-xs font-bold text-ink/60 uppercase">
                         <th className="pb-2">Section</th>
                         <th className="pb-2 text-center">Attempted</th>
                         <th className="pb-2 text-center">Correct</th>
@@ -171,7 +172,7 @@ export default async function ProgressPage() {
                       <p className="font-semibold text-ink">
                         {attempt.test_title}
                       </p>
-                      <p className="text-xs text-ink/45">
+                      <p className="text-xs text-ink/60">
                         {formatDate(attempt.created_at)}
                       </p>
                     </div>

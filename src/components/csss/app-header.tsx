@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { BarChart3, Menu, Search } from "lucide-react";
+import { BarChart3, Search } from "lucide-react";
 import { Logo } from "@/components/layout/logo";
+import { MobileNav } from "@/components/layout/mobile-nav";
 import { Container } from "@/components/ui/container";
 import { AccountMenu } from "@/components/auth/account-menu";
 
@@ -17,19 +18,22 @@ export function AppHeader({
     <header className="sticky top-0 z-50 border-b border-ink/10 bg-white">
       <Container className="flex h-[70px] items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            aria-label="Open menu"
-            className="-ml-1 flex h-10 w-10 items-center justify-center rounded-lg text-ink hover:bg-ink/5"
-          >
-            <Menu className="h-6 w-6" strokeWidth={2.3} />
-          </button>
+          <MobileNav
+            links={[
+              { label: "Home", href: "/" },
+              { label: "CSSS Tests", href: "/csss" },
+              { label: "My Progress", href: "/progress" },
+              { label: "OPAM", soon: true },
+              { label: "PPDT", soon: true },
+              { label: "Mentorship", soon: true },
+            ]}
+          />
           <Link
             href="/"
             aria-label="Learners Park home"
-            className="flex items-center"
+            className="flex shrink-0 items-center"
           >
-            <Logo className="h-9 w-auto md:h-11" />
+            <Logo className="h-8 w-auto sm:h-9 md:h-11" />
           </Link>
         </div>
 
@@ -45,7 +49,8 @@ export function AppHeader({
                 value={query ?? ""}
                 onChange={(event) => onQueryChange(event.target.value)}
                 placeholder="Search tests..."
-                className="h-11 w-full rounded-full border border-ink/10 bg-bg-light pr-4 pl-12 text-[0.95rem] text-ink placeholder:text-ink/45 focus:border-ink/25 focus:outline-none"
+                aria-label="Search tests"
+                className="h-11 w-full rounded-full border border-ink/10 bg-bg-light pr-4 pl-12 text-[0.95rem] text-ink placeholder:text-ink/60 focus:border-ink/25 focus:outline-none"
               />
             </div>
           </div>

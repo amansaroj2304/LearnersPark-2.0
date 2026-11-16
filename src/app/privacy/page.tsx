@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { LegalPage } from "@/components/layout/legal-page";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Learners Park",
+  title: "Privacy Policy",
+  alternates: { canonical: "/privacy" },
   description:
     "How Learners Park collects, uses, and protects your information, including data received through Google Sign-In.",
 };

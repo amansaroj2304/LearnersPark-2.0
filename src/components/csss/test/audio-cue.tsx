@@ -55,7 +55,7 @@ export function AudioCue({
           className,
         )}
       >
-        <p className="text-xs font-semibold tracking-[0.14em] text-ink/50 uppercase">
+        <p className="text-xs font-semibold tracking-[0.14em] text-ink/60 uppercase">
           Audio unavailable — read the cue
         </p>
         <p className="mt-1 text-lg font-bold tracking-wide text-ink">{cue}</p>
@@ -85,7 +85,7 @@ export function AudioCue({
           {playing ? "Playing audio…" : "Audio played"}
         </span>
       )}
-      <span className="text-sm text-ink/55">
+      <span className="text-sm text-ink/60">
         {allowReplay
           ? "Listen and choose the matching option."
           : "Listen once and choose the matching option."}

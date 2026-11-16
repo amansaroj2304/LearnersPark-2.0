@@ -6,44 +6,20 @@ import { TestCard, type CsssTest } from "@/components/csss/test-card";
 import { TestResultCard } from "@/components/csss/test-result-card";
 import { SummaryPanel } from "@/components/csss/summary-panel";
 import { Container } from "@/components/ui/container";
-import type { TestResultSummary } from "@/data/csss-tests";
+import { csssTests, type TestResultSummary } from "@/data/csss-tests";
 import { cn } from "@/lib/utils";
 
-const tests: CsssTest[] = [
-  {
-    id: "mock-01",
-    title: "CSSS Mock Test 01",
-    kind: "full",
-    sections: "All Sections",
-    questions: 70,
-    marks: 70,
-    minutes: 10,
-    languages: ["English", "Hindi"],
-    free: true,
-  },
-  {
-    id: "mock-02",
-    title: "CSSS Mock Test 02",
-    kind: "full",
-    sections: "All Sections",
-    questions: 70,
-    marks: 70,
-    minutes: 10,
-    languages: ["English", "Hindi"],
-    free: true,
-  },
-  {
-    id: "mock-03",
-    title: "CSSS Mock Test 03",
-    kind: "full",
-    sections: "All Sections",
-    questions: 70,
-    marks: 70,
-    minutes: 10,
-    languages: ["English", "Hindi"],
-    free: true,
-  },
-];
+const tests: CsssTest[] = Object.values(csssTests).map((test) => ({
+  id: test.id,
+  title: test.title,
+  kind: "full",
+  sections: "All Sections",
+  questions: test.questions.length,
+  marks: test.questions.length * test.marksCorrect,
+  minutes: test.durationMinutes,
+  languages: ["English", "Hindi"],
+  free: true,
+}));
 
 const tabs = [
   { id: "all", label: "All" },
@@ -85,7 +61,7 @@ export function TestsBrowser({
               <span className="rounded-md bg-ink px-3 py-1.5 text-xs font-bold tracking-[0.14em] text-white uppercase">
                 CSSS
               </span>
-              <p className="text-[0.7rem] font-semibold tracking-[0.18em] text-ink/55 uppercase sm:text-xs">
+              <p className="text-[0.7rem] font-semibold tracking-[0.18em] text-ink/60 uppercase sm:text-xs">
                 Computerised Selection Screening System
               </p>
             </div>
@@ -101,6 +77,7 @@ export function TestsBrowser({
               communication.
             </p>
 
+            <h2 className="sr-only">Available tests</h2>
             <div className="mt-8 flex flex-wrap gap-3">
               {tabs.map((item) => (
                 <button
@@ -134,7 +111,7 @@ export function TestsBrowser({
                   ),
                 )
               ) : (
-                <div className="rounded-2xl border border-dashed border-ink/15 bg-white/60 px-6 py-14 text-center text-ink/55">
+                <div className="rounded-2xl border border-dashed border-ink/15 bg-white/60 px-6 py-14 text-center text-ink/60">
                   No tests found
                   {query.trim() ? ` for “${query.trim()}”` : ""}.
                 </div>

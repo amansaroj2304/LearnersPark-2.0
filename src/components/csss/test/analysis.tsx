@@ -76,7 +76,7 @@ export function Analysis({
         <h1 className="text-[clamp(1.6rem,3.4vw,2.2rem)] font-extrabold tracking-[-0.02em] text-ink">
           {title}
         </h1>
-        <p className="mt-2 text-sm font-medium tracking-[0.14em] text-ink/45 uppercase">
+        <p className="mt-2 text-sm font-medium tracking-[0.14em] text-ink/60 uppercase">
           Overall Performance Summary
         </p>
 
@@ -118,7 +118,7 @@ export function Analysis({
             ))}
           </div>
 
-          <p className="mt-7 text-center text-sm text-ink/55">
+          <p className="mt-7 text-center text-sm text-ink/60">
             You scored{" "}
             <span className="font-bold text-ink">
               {score} / {maxScore}
@@ -179,7 +179,7 @@ export function Analysis({
                   className="rounded-2xl border border-ink/10 bg-white p-6 sm:p-7"
                 >
                   <div className="flex items-center justify-between gap-4">
-                    <span className="text-xs font-bold tracking-[0.16em] text-ink/45 uppercase">
+                    <span className="text-xs font-bold tracking-[0.16em] text-ink/60 uppercase">
                       Question {index + 1}
                     </span>
                     <span
@@ -231,7 +231,7 @@ export function Analysis({
 
                   {question.cue && (
                     <div className="mt-4 rounded-xl border border-ink/10 bg-bg-light px-5 py-4">
-                      <span className="text-xs font-semibold tracking-[0.14em] text-ink/45 uppercase">
+                      <span className="text-xs font-semibold tracking-[0.14em] text-ink/60 uppercase">
                         Audio cue
                       </span>
                       <p className="mt-1 text-base font-bold tracking-wide text-ink">
@@ -270,7 +270,7 @@ export function Analysis({
                           </span>
                           <span className="flex-1">{option}</span>
                           {isSelected && (
-                            <span className="text-[0.7rem] font-bold tracking-[0.12em] text-ink/45 uppercase">
+                            <span className="text-[0.7rem] font-bold tracking-[0.12em] text-ink/60 uppercase">
                               Your answer
                             </span>
                           )}

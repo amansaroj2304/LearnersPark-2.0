@@ -6,7 +6,8 @@ import { csssTests } from "@/data/csss-tests";
 export const instant = false;
 
 export const metadata: Metadata = {
-  title: "CSSS Mock Tests | Learners Park",
+  title: "CSSS Mock Tests",
+  alternates: { canonical: "/csss" },
   description:
     "Practice CSSS mock tests and improve your performance with structured assessments covering memory, perception, reasoning and communication.",
 };

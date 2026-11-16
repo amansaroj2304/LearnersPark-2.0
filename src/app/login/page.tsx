@@ -7,7 +7,8 @@ import { LoginButton } from "@/components/auth/login-button";
 export const instant = false;
 
 export const metadata: Metadata = {
-  title: "Sign in | Learners Park",
+  title: "Sign in",
+  robots: { index: false, follow: true },
   description: "Sign in with Google to attempt CSSS tests and track your progress.",
 };
 
@@ -52,7 +53,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
 
           <Link
             href="/csss"
-            className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-ink/55 transition-colors hover:text-ink"
+            className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-ink/60 transition-colors hover:text-ink"
           >
             <ArrowLeft className="h-4 w-4" strokeWidth={2.3} />
             Back to tests

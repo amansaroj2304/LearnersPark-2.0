@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { LegalPage } from "@/components/layout/legal-page";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | Learners Park",
+  title: "Terms of Service",
+  alternates: { canonical: "/terms" },
   description:
     "The terms and conditions that govern your use of Learners Park and its SSB preparation services.",
 };

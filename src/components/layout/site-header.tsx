@@ -4,6 +4,7 @@ import { buttonClasses } from "@/components/ui/button";
 import { GetStartedDialog } from "@/components/auth/get-started-dialog";
 import { AccountMenu } from "@/components/auth/account-menu";
 import { Logo } from "@/components/layout/logo";
+import { MobileNav } from "@/components/layout/mobile-nav";
 import { Container } from "@/components/ui/container";
 import { navLinks } from "@/lib/data";
 
@@ -12,40 +13,42 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 bg-white shadow-[0_1px_0_rgba(6,21,13,0.07)]">
       <Container className="relative flex h-[68px] items-center justify-between gap-4 md:h-[83px]">
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            aria-label="Open menu"
-            className="-ml-1 flex h-10 w-10 items-center justify-center rounded-lg text-ink hover:bg-ink/5 lg:hidden"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              className="h-6 w-6"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-            >
-              <path d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-
-          <Link href="/" aria-label="Learners Park home" className="flex items-center">
-            <Logo className="h-11 w-auto md:h-12 lg:h-14" />
+          <MobileNav
+            links={[
+              { label: "Home", href: "/" },
+              ...navLinks,
+              { label: "My Progress", href: "/progress" },
+            ]}
+          />
+          <Link href="/" aria-label="Learners Park home" className="flex shrink-0 items-center">
+            <Logo className="h-9 w-auto sm:h-11 md:h-12 lg:h-14" />
           </Link>
         </div>
-
         <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-10 lg:flex xl:gap-16">
-          {navLinks.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className="text-lg font-medium text-ink/90 transition-colors hover:text-crimson xl:text-[1.35rem]"
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) =>
+            link.soon ? (
+              <span
+                key={link.label}
+                aria-disabled="true"
+                title="Coming soon"
+                className="flex items-center gap-2 text-lg font-medium text-ink/60 xl:text-[1.35rem]"
+              >
+                {link.label}
+                <span className="rounded-md bg-sage/40 px-2 py-0.5 text-[0.6rem] font-bold tracking-[0.12em] text-olive-deep uppercase">
+                  Soon
+                </span>
+              </span>
+            ) : (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="text-lg font-medium text-ink/90 transition-colors hover:text-crimson xl:text-[1.35rem]"
+              >
+                {link.label}
+              </Link>
+            ),
+          )}
         </nav>
-
         <AccountMenu
           fallback={
             <GetStartedDialog
