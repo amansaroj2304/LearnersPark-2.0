@@ -86,7 +86,7 @@ export function Hero() {
                 CSSS Test Free
               </Link>
               <Link
-                href="#opam"
+                href="/opam"
                 className={buttonClasses(
                   "outline",
                   "lg",
