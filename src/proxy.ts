@@ -35,7 +35,12 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/admin") && pathname !== "/admin/login" && !claims) {
+  const publicAdminRoutes = ["/admin/login", "/admin/reset-password"];
+  if (
+    pathname.startsWith("/admin") &&
+    !publicAdminRoutes.includes(pathname) &&
+    !claims
+  ) {
     const adminUrl = request.nextUrl.clone();
     adminUrl.pathname = "/admin/login";
     adminUrl.search = "";
