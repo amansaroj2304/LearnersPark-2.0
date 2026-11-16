@@ -7,6 +7,7 @@ import {
   BookOpenCheck,
   LayoutDashboard,
   LogIn,
+  KeyRound,
   LogOut,
   ScrollText,
   Users,
@@ -20,6 +21,7 @@ const items = [
   { href: "/admin/tests", label: "Tests", icon: BookOpenCheck },
   { href: "/admin/logins", label: "Login activity", icon: LogIn },
   { href: "/admin/audit", label: "Audit log", icon: ScrollText },
+  { href: "/admin/account", label: "Account", icon: KeyRound },
 ];
 
 export function AdminNav({
