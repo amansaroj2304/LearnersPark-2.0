@@ -210,6 +210,10 @@ drop policy if exists students_update_own on public.students;
 create policy students_update_own on public.students
   for update using (user_id = auth.uid()) with check (user_id = auth.uid());
 
+drop policy if exists students_admin_update on public.students;
+create policy students_admin_update on public.students
+  for update using (public.is_admin()) with check (public.is_admin());
+
 drop policy if exists profile_conflicts_admin on public.profile_conflicts;
 create policy profile_conflicts_admin on public.profile_conflicts
   for select using (public.is_admin());
@@ -237,5 +241,10 @@ create policy login_events_admin on public.login_events
 drop policy if exists audit_log_admin on public.audit_log;
 create policy audit_log_admin on public.audit_log
   for select using (public.is_admin());
+
+drop policy if exists audit_log_insert on public.audit_log;
+create policy audit_log_insert on public.audit_log
+  for insert to authenticated
+  with check (public.is_admin() and admin_id = auth.uid());
 
 commit;
