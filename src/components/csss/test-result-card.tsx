@@ -59,7 +59,7 @@ export function TestResultCard({
                 style={{ left: `${pct}%` }}
               />
             </div>
-            <p className="mt-2 text-xs font-semibold tracking-[0.06em] text-ink/55">
+            <p className="mt-2 text-xs font-semibold tracking-[0.06em] text-ink/60">
               {pct}% Score
             </p>
           </div>
@@ -106,7 +106,7 @@ function Stat({
       </span>
       <span className="flex flex-col leading-tight">
         <span className="text-sm font-extrabold text-ink">{value}</span>
-        <span className="text-[0.65rem] font-semibold tracking-[0.14em] text-ink/50 uppercase">
+        <span className="text-[0.65rem] font-semibold tracking-[0.14em] text-ink/60 uppercase">
           {label}
         </span>
       </span>

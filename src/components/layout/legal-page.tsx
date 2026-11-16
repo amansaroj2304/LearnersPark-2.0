@@ -22,7 +22,7 @@ export function LegalPage({
           <div className="mx-auto w-full max-w-[820px]">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-ink/55 transition-colors hover:text-crimson"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-ink/60 transition-colors hover:text-crimson"
             >
               <ArrowLeft className="h-4 w-4" strokeWidth={2.3} />
               Back to home
@@ -31,7 +31,7 @@ export function LegalPage({
             <h1 className="mt-5 text-[clamp(1.9rem,4vw,2.6rem)] font-extrabold tracking-[-0.02em] text-ink">
               {title}
             </h1>
-            <p className="mt-2 text-sm font-medium text-ink/50">
+            <p className="mt-2 text-sm font-medium text-ink/60">
               Last updated: {updated}
             </p>
 

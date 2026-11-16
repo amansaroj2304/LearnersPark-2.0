@@ -137,7 +137,7 @@ export function AccountMenu({ fallback }: { fallback?: ReactNode }) {
             {initials(profile.name)}
           </span>
         )}
-        <ChevronDown className="h-4 w-4 text-ink/50" strokeWidth={2.4} />
+        <ChevronDown className="h-4 w-4 text-ink/60" strokeWidth={2.4} />
       </button>
 
       {open && (
@@ -147,7 +147,7 @@ export function AccountMenu({ fallback }: { fallback?: ReactNode }) {
         >
           <div className="border-b border-ink/10 px-4 py-3">
             <p className="truncate text-sm font-bold text-ink">{profile.name}</p>
-            <p className="truncate text-xs text-ink/55">{profile.email}</p>
+            <p className="truncate text-xs text-ink/60">{profile.email}</p>
           </div>
           <Link
             href="/progress"

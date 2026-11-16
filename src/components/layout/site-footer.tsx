@@ -19,7 +19,7 @@ export function SiteFooter() {
           </Link>
         </nav>
 
-        <p className="text-sm text-ink/45">© 2026 Learners Park</p>
+        <p className="text-sm text-ink/60">© 2026 Learners Park</p>
       </Container>
     </footer>
   );

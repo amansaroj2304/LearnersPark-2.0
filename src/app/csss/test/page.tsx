@@ -6,7 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 export const instant = false;
 
 export const metadata: Metadata = {
-  title: "CSSS Mock Test | Learners Park",
+  title: "CSSS Mock Test",
+  robots: { index: false, follow: false },
   description:
     "Attempt the CSSS mock test with a timed interface, question palette, review marking and a detailed performance analysis.",
 };

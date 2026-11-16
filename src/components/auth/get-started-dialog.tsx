@@ -51,7 +51,7 @@ export function GetStartedDialog({
               type="button"
               aria-label="Close"
               onClick={() => setOpen(false)}
-              className="absolute top-4 right-4 flex h-9 w-9 items-center justify-center rounded-lg text-ink/50 transition-colors hover:bg-ink/5 hover:text-ink"
+              className="absolute top-4 right-4 flex h-9 w-9 items-center justify-center rounded-lg text-ink/60 transition-colors hover:bg-ink/5 hover:text-ink"
             >
               <X className="h-5 w-5" strokeWidth={2.2} />
             </button>
@@ -74,7 +74,7 @@ export function GetStartedDialog({
               <LoginButton next="/csss" />
             </div>
 
-            <p className="mt-5 text-center text-xs leading-relaxed text-ink/45">
+            <p className="mt-5 text-center text-xs leading-relaxed text-ink/60">
               Free forever. No credit card required.
             </p>
           </div>

@@ -264,7 +264,7 @@ export function TestScreen({
       <div className="flex min-h-0 flex-1">
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="flex h-[52px] shrink-0 items-center gap-4 border-b border-ink/10 px-4 sm:px-6">
-            <span className="text-xs font-semibold tracking-[0.16em] text-ink/45 uppercase">
+            <span className="text-xs font-semibold tracking-[0.16em] text-ink/60 uppercase">
               Sections
             </span>
             <span className="rounded-md bg-ink px-6 py-1.5 text-sm font-semibold text-white">
@@ -384,13 +384,13 @@ export function TestScreen({
                   </FlashGate>
                 ) : (
                   <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-ink/20 bg-bg-light/60 px-6 py-16 text-center">
-                    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-ink/8 text-ink/50">
+                    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-ink/8 text-ink/60">
                       <FileText className="h-6 w-6" strokeWidth={1.8} />
                     </span>
                     <p className="text-lg font-bold text-ink">
                       Questions coming soon
                     </p>
-                    <p className="max-w-sm text-sm leading-relaxed text-ink/55">
+                    <p className="max-w-sm text-sm leading-relaxed text-ink/60">
                       Section {section.code} · {section.name} is being prepared.
                       Its {section.questionCount} questions will appear here.
                     </p>
