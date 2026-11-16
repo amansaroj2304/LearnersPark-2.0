@@ -12,9 +12,7 @@ import { SectionBrief } from "@/components/csss/test/section-brief";
 import { TestScreen } from "@/components/csss/test/test-screen";
 import { SubmitModal, type SubmitSummary } from "@/components/csss/test/submit-modal";
 import { Analysis } from "@/components/csss/test/analysis";
-import { scoreAttempt } from "@/lib/csss-scoring";
-import { saveAttempt } from "@/lib/attempts";
-
+import { submitAttempt } from "@/lib/attempts";
 type Stage = "instructions" | "test" | "analysis";
 
 export function TestRunner({
@@ -39,6 +37,9 @@ export function TestRunner({
   const secondsRef = useRef(secondsLeft);
   const answersRef = useRef(answers);
   const savedRef = useRef(false);
+  const startedAtRef = useRef<number | null>(null);
+  const alreadyAttemptedRef = useRef(false);
+  const [alreadyAttempted, setAlreadyAttempted] = useState(false);
 
   const activeSection = sectionIndexForQuestion(current);
   const showBrief = stage === "test" && !startedSections[activeSection];
@@ -53,20 +54,21 @@ export function TestRunner({
 
   const persistResult = useCallback(() => {
     if (savedRef.current) return;
+    if (alreadyAttemptedRef.current) return;
     savedRef.current = true;
-    const score = scoreAttempt(
-      test.questions,
-      answersRef.current,
-      test.marksCorrect,
-      test.marksWrong,
-    );
-    void saveAttempt({
+    const submittedAt = Date.now();
+    void submitAttempt({
       testId: test.id,
-      testTitle: test.title,
-      score,
+      answers: answersRef.current,
+      startedAt: startedAtRef.current ?? submittedAt,
+      submittedAt,
     })
       .then((result) => {
         if (result?.error) {
+          if (result.code === "already_attempted") {
+            alreadyAttemptedRef.current = true;
+            setAlreadyAttempted(true);
+          }
           savedRef.current = false;
           setSaveError(result.error);
         } else {
@@ -144,6 +146,9 @@ export function TestRunner({
     setSaveError(null);
     answersRef.current = {};
     savedRef.current = false;
+    startedAtRef.current = null;
+    alreadyAttemptedRef.current = false;
+    setAlreadyAttempted(false);
   }, [totalSeconds]);
 
   const summary: SubmitSummary = useMemo(() => {
@@ -186,7 +191,10 @@ export function TestRunner({
         marksWrong={test.marksWrong}
         studentName={studentName}
         onBack={() => router.push("/csss")}
-        onBegin={() => setStage("test")}
+        onBegin={() => {
+          startedAtRef.current = Date.now();
+          setStage("test");
+        }}
       />
     );
   }
@@ -200,11 +208,7 @@ export function TestRunner({
         marksCorrect={test.marksCorrect}
         marksWrong={test.marksWrong}
         saveError={saveError}
-        onRetrySave={persistResult}
-        onReattempt={() => {
-          resetTest();
-          setStage("test");
-        }}
+        onRetrySave={alreadyAttempted ? undefined : persistResult}
         onExit={() => {
           resetTest();
           router.push("/csss");

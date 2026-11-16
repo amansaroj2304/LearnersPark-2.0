@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { TestRunner } from "@/components/csss/test/runner";
+import { AlreadyAttempted } from "@/components/csss/test/already-attempted";
 import { getCsssTest } from "@/data/csss-tests";
+import { hasAttemptedTest } from "@/lib/attempts";
 import { createClient } from "@/lib/supabase/server";
 
 export const instant = false;
@@ -20,6 +22,11 @@ export default async function CsssTestPage({
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   const claims = data?.claims;
+
+  if (claims?.sub && (await hasAttemptedTest(test.id))) {
+    return <AlreadyAttempted testTitle={test.title} />;
+  }
+
   const studentName =
     (claims?.user_metadata?.full_name as string | undefined) ||
     (claims?.user_metadata?.name as string | undefined) ||

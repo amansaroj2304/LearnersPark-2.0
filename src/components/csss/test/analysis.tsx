@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, RotateCcw, TriangleAlert, X } from "lucide-react";
+import { Check, TriangleAlert, X } from "lucide-react";
 import { Logo } from "@/components/layout/logo";
 import { cn, splitEmphasis } from "@/lib/utils";
 import { csssSections, type CsssQuestion } from "@/data/csss-questions";
@@ -15,7 +15,6 @@ export function Analysis({
   marksWrong,
   saveError,
   onRetrySave,
-  onReattempt,
   onExit,
 }: {
   title: string;
@@ -25,7 +24,6 @@ export function Analysis({
   marksWrong: number;
   saveError?: string | null;
   onRetrySave?: () => void;
-  onReattempt: () => void;
   onExit: () => void;
 }) {
   const { attempted, correct, wrong, score, accuracy, maxScore, sections } =
@@ -59,14 +57,6 @@ export function Analysis({
               className="h-10 rounded-lg border border-ink/15 bg-white px-5 text-sm font-semibold text-ink transition-colors hover:bg-ink/5"
             >
               Exit
-            </button>
-            <button
-              type="button"
-              onClick={onReattempt}
-              className="flex h-10 items-center gap-2 rounded-lg bg-crimson px-5 text-sm font-semibold text-white transition-colors hover:bg-crimson-shape"
-            >
-              <RotateCcw className="h-4 w-4" strokeWidth={2.3} />
-              Reattempt
             </button>
           </div>
         </div>

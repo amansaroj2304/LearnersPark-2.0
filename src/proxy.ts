@@ -34,6 +34,14 @@ export async function proxy(request: NextRequest) {
   const claims = data?.claims;
 
   const { pathname } = request.nextUrl;
+
+  if (pathname.startsWith("/admin") && pathname !== "/admin/login" && !claims) {
+    const adminUrl = request.nextUrl.clone();
+    adminUrl.pathname = "/admin/login";
+    adminUrl.search = "";
+    return NextResponse.redirect(adminUrl);
+  }
+
   const isProtected = protectedRoutes.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
