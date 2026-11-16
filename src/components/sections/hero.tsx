@@ -85,17 +85,18 @@ export function Hero() {
                 <FileText className="h-5 w-5" strokeWidth={1.8} />
                 CSSS Test Free
               </Link>
-              <Link
-                href="#opam"
+              <span
+                aria-disabled="true"
+                title="OPAM tests are coming soon"
                 className={buttonClasses(
                   "outline",
                   "lg",
-                  "w-full gap-2 sm:w-auto sm:min-w-[13.5rem]",
+                  "w-full cursor-not-allowed gap-2 opacity-60 sm:w-auto sm:min-w-[13.5rem]",
                 )}
               >
                 <FileText className="h-5 w-5" strokeWidth={1.8} />
-                OPAM Test Free
-              </Link>
+                OPAM · Coming soon
+              </span>
             </div>
           </div>
 
@@ -250,34 +251,45 @@ function MobileVisual() {
 }
 
 function FloatingContact() {
+  const whatsapp = process.env.NEXT_PUBLIC_WHATSAPP_URL;
+  const telegram = process.env.NEXT_PUBLIC_TELEGRAM_URL;
+  if (!whatsapp && !telegram) return null;
   return (
     <div className="fixed top-1/2 right-3 z-40 flex -translate-y-1/2 flex-col gap-3 sm:right-4">
-      <a
-        href="#whatsapp"
-        aria-label="Chat on WhatsApp"
-        className="transition-transform duration-200 hover:scale-110"
-      >
-        <Image
-          src="/icon-whatsapp.png"
-          alt=""
-          width={60}
-          height={60}
-          className="h-12 w-12 sm:h-[60px] sm:w-[60px]"
-        />
-      </a>
-      <a
-        href="#telegram"
-        aria-label="Join us on Telegram"
-        className="transition-transform duration-200 hover:scale-110"
-      >
-        <Image
-          src="/icon-telegram.png"
-          alt=""
-          width={60}
-          height={60}
-          className="h-12 w-12 sm:h-[60px] sm:w-[60px]"
-        />
-      </a>
+      {whatsapp && (
+        <a
+          href={whatsapp}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Chat on WhatsApp"
+          className="transition-transform duration-200 hover:scale-110"
+        >
+          <Image
+            src="/icon-whatsapp.png"
+            alt=""
+            width={60}
+            height={60}
+            className="h-12 w-12 sm:h-[60px] sm:w-[60px]"
+          />
+        </a>
+      )}
+      {telegram && (
+        <a
+          href={telegram}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Join us on Telegram"
+          className="transition-transform duration-200 hover:scale-110"
+        >
+          <Image
+            src="/icon-telegram.png"
+            alt=""
+            width={60}
+            height={60}
+            className="h-12 w-12 sm:h-[60px] sm:w-[60px]"
+          />
+        </a>
+      )}
     </div>
   );
 }

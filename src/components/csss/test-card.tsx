@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Languages, Share2 } from "lucide-react";
+import { ArrowRight, BookOpen, Languages } from "lucide-react";
 import { buttonClasses } from "@/components/ui/button";
+import { ShareButton } from "@/components/csss/share-button";
 
 export type CsssTest = {
   id: string;
@@ -32,7 +33,7 @@ export function TestCard({ test }: { test: CsssTest }) {
             </span>
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink/55">
+          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink/60">
             <span>{test.questions} Questions</span>
             <Sep />
             <span>{test.marks} Marks</span>
@@ -54,7 +55,7 @@ export function TestCard({ test }: { test: CsssTest }) {
             <ArrowRight className="h-4 w-4" strokeWidth={2.6} />
           </Link>
           {test.free && (
-            <span className="text-[0.7rem] font-semibold tracking-[0.18em] text-ink/45 uppercase">
+            <span className="text-[0.7rem] font-semibold tracking-[0.18em] text-ink/60 uppercase">
               Free
             </span>
           )}
@@ -63,23 +64,31 @@ export function TestCard({ test }: { test: CsssTest }) {
 
       <div className="flex items-center justify-between gap-4 border-t border-ink/10 px-6 py-3.5 text-sm font-medium text-ink/70 sm:px-7">
         <div className="flex flex-wrap items-center gap-4">
-          <span className="flex items-center gap-2">
-            <BookOpen className="h-4.5 w-4.5 text-ink/55" strokeWidth={1.9} />
+          <Link
+            href={`/csss/test?test=${test.id}`}
+            className="flex items-center gap-2 transition-colors hover:text-ink"
+          >
+            <BookOpen
+              className="h-4.5 w-4.5 text-ink/60"
+              strokeWidth={1.9}
+              aria-hidden="true"
+            />
             Syllabus
-          </span>
+          </Link>
           <Sep />
           <span className="flex items-center gap-2">
-            <Languages className="h-4.5 w-4.5 text-ink/55" strokeWidth={1.9} />
+            <Languages
+              className="h-4.5 w-4.5 text-ink/60"
+              strokeWidth={1.9}
+              aria-hidden="true"
+            />
             {test.languages.join(", ")}
           </span>
         </div>
-        <button
-          type="button"
-          className="flex items-center gap-2 transition-colors hover:text-ink"
-        >
-          <Share2 className="h-4.5 w-4.5" strokeWidth={1.9} />
-          Share
-        </button>
+        <ShareButton
+          title={`${test.title} — Learners Park`}
+          path={`/csss/test?test=${test.id}`}
+        />
       </div>
     </article>
   );
