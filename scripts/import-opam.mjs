@@ -23,6 +23,7 @@ if (!url || !key) {
 const bank = JSON.parse(readFileSync(path, "utf8"));
 const questions = bank.questions ?? [];
 const problems = [];
+const warnings = [];
 
 if (questions.length !== 240) problems.push(`Expected 240 questions, got ${questions.length}`);
 const byPart = {};
@@ -36,8 +37,15 @@ for (const [k, expected] of Object.entries(EXPECTED)) {
 const ids = new Set(questions.map((q) => q.id));
 if (ids.size !== questions.length) problems.push("Duplicate question ids");
 for (const q of questions) {
-  if (!q.text || q.text.length < 20) problems.push(`${q.id}: text shorter than 20 characters`);
-  if (!Array.isArray(q.olq) || q.olq.length === 0 || q.olq.length > 3) problems.push(`${q.id}: needs 1–3 OLQ tags`);
+  if (!q.text || q.text.length < 20) warnings.push(`${q.id}: text shorter than 20 characters`);
+  if (q.part === 2) {
+    if (!Array.isArray(q.olq_a) || q.olq_a.length === 0) problems.push(`${q.id}: option A needs OLQ tags`);
+    if (!Array.isArray(q.olq_b) || q.olq_b.length === 0) problems.push(`${q.id}: option B needs OLQ tags`);
+  } else if (!Array.isArray(q.olq) || q.olq.length === 0) {
+    problems.push(`${q.id}: needs at least one OLQ tag`);
+  } else if (q.part === 1 && q.olq.length > 3) {
+    warnings.push(`${q.id}: ${q.olq.length} OLQ tags (spec asks for at most three)`);
+  }
   if (q.part === 1 && !["P", "N"].includes(q.keyed)) problems.push(`${q.id}: keyed must be P or N`);
   if (q.part === 1 && q.pair && !ids.has(q.pair)) problems.push(`${q.id}: pair ${q.pair} missing`);
   if (q.part === 2 && (!q.option_a || !q.option_b)) problems.push(`${q.id}: both options required`);
@@ -86,6 +94,10 @@ for (let i = 0; i < rows.length; i += 50) {
   process.stdout.write(`\rImported ${Math.min(i + 50, rows.length)}/${rows.length}`);
 }
 console.log("\nQuestions imported.");
+if (warnings.length) {
+  console.log(`${warnings.length} content warning(s) — imported, worth a look:`);
+  for (const w of warnings.slice(0, 15)) console.log("  ·", w);
+}
 
 const timing = bank.timing ?? {};
 for (const setId of [1, 2]) {

@@ -49,6 +49,7 @@ export default async function OpamReportPage({ params }: { params: Promise<{ id:
                 autoSubmitted={attempt.status === "auto_submitted"}
                 finishedAt={attempt.finished_at}
                 setTitle={config?.title ?? `OPAM Mock Test — Set ${attempt.set_id}`}
+                elapsedSecs={attempt.elapsed_secs}
               />
               <div className="mt-8 flex flex-wrap gap-3 print:hidden">
                 <Link

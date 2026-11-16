@@ -73,6 +73,7 @@ export default async function AdminAttemptPage({ params }: { params: Promise<{ i
               autoSubmitted={attempt.status === "auto_submitted"}
               finishedAt={attempt.finished_at}
               setTitle={config?.title ?? `OPAM Mock Test — Set ${attempt.set_id}`}
+              elapsedSecs={attempt.elapsed_secs}
             />
           </section>
         ) : (

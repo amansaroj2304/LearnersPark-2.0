@@ -20,12 +20,14 @@ export function ReportView({
   autoSubmitted,
   finishedAt,
   setTitle,
+  elapsedSecs = 0,
 }: {
   report: OpamReport;
   questions: QRow[];
   autoSubmitted: boolean;
   finishedAt: string | null;
   setTitle: string;
+  elapsedSecs?: number;
 }) {
   const sjtQuestions = questions.filter((q) => q.part === 3);
   const byQnum = new Map(sjtQuestions.map((q) => [q.qnum, q]));
@@ -52,7 +54,7 @@ export function ReportView({
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           <Stat label="Attempted" value={report.attempted} hint={`of ${report.total}`} />
           <Stat label="Unanswered" value={report.unanswered} />
-          <Stat label="Time taken" value={`${Math.floor(report.lat.n ? 0 : 0) + Math.round((report.lat.avg * report.lat.n) / 60)} min`} hint="sum of per-question time" />
+          <Stat label="Time taken" value={`${Math.floor(elapsedSecs / 60)}:${String(elapsedSecs % 60).padStart(2, "0")}`} hint="of the paper clock" />
           <Stat label="Avg response" value={`${report.lat.avg}s`} hint={`median ${report.lat.median}s`} />
           <Stat label="Consistency" value={report.cons.checked ? `${report.cons.rate}%` : "—"} hint={`${report.cons.consistent}/${report.cons.checked} pairs`} />
           <Stat label="Judgement index" value={`${report.sjt.rate}%`} hint={`${report.sjt.points}/${report.sjt.max} points`} />
