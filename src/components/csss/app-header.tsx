@@ -24,7 +24,7 @@ export function AppHeader({
               { label: "CSSS Tests", href: "/csss" },
               { label: "My Progress", href: "/progress" },
               { label: "OPAM", href: "/opam" },
-              { label: "PPDT", soon: true },
+              { label: "SSB", href: "/ssb" },
               { label: "Mentorship", soon: true },
             ]}
           />
