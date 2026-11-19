@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { Container } from "@/components/ui/container";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -8,6 +9,7 @@ import { getSsbTest, isOpen } from "@/lib/ssb/data";
 export const instant = false;
 
 export default async function SsbTestPage({ params }: { params: Promise<{ id: string }> }) {
+  await connection();
   const { id } = await params;
   const test = await getSsbTest(id).catch(() => null);
   if (!test) notFound();

@@ -72,6 +72,14 @@ export default async function AdminSsbPage() {
                           className="w-full rounded-lg border border-ink/15 px-3 py-2 text-sm text-ink"
                           aria-label={`${test.name} instructions`}
                         />
+                        <input
+                          name="referencePath"
+                          defaultValue={test.reference_path ?? ""}
+                          disabled={!writable}
+                          placeholder="Reference page, e.g. /ppdt"
+                          className="w-full rounded-lg border border-ink/15 px-3 py-1.5 text-xs text-ink"
+                          aria-label={`${test.name} reference page`}
+                        />
                       </div>
                       <select
                         name="status"

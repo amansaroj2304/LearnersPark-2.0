@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { connection } from "next/server";
 import { Container } from "@/components/ui/container";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
-import { DAYS, getSsbTests, isOpen, type SsbTest } from "@/lib/ssb/data";
+import { DAYS, getSsbTests, isOpen, REFERENCE_NOTES, type SsbTest } from "@/lib/ssb/data";
 import { isOpamConfigured } from "@/lib/supabase/service";
 
 export const instant = false;
@@ -22,7 +23,8 @@ const BADGE: Record<string, { label: string; cls: string }> = {
 };
 
 function TestCard({ test }: { test: SsbTest }) {
-  const badge = BADGE[test.status] ?? BADGE.SOON;
+  const notes = test.reference_path ?? REFERENCE_NOTES[test.id] ?? null;
+  const badge = notes && !isOpen(test) ? { label: "Reference notes", cls: "bg-gold/20 text-[#7a5c10]" } : BADGE[test.status] ?? BADGE.SOON;
   const open = isOpen(test);
   return (
     <article className="flex flex-col rounded-2xl border border-ink/10 bg-white p-5">
@@ -48,6 +50,13 @@ function TestCard({ test }: { test: SsbTest }) {
           >
             Start test
           </Link>
+        ) : notes ? (
+          <Link
+            href={notes}
+            className="inline-flex h-9 items-center rounded-lg border border-ink/15 px-4 text-sm font-semibold text-ink hover:bg-ink/5"
+          >
+            Read notes
+          </Link>
         ) : (
           <button
             type="button"
@@ -65,6 +74,7 @@ function TestCard({ test }: { test: SsbTest }) {
 }
 
 export default async function SsbPage() {
+  await connection();
   const tests = isOpamConfigured() ? await getSsbTests().catch(() => []) : [];
 
   return (

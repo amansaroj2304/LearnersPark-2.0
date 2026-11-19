@@ -16,6 +16,7 @@ export async function saveSsbTest(formData: FormData) {
 
   const description = String(formData.get("description") ?? "").trim();
   const instructions = String(formData.get("instructions") ?? "").trim();
+  const referencePath = String(formData.get("referencePath") ?? "").trim();
   const opensAt = String(formData.get("opensAt") ?? "");
   const closesAt = String(formData.get("closesAt") ?? "");
 
@@ -25,6 +26,7 @@ export async function saveSsbTest(formData: FormData) {
     status,
     description: description.slice(0, 400),
     instructions: instructions ? instructions.slice(0, 2000) : null,
+    reference_path: referencePath ? (referencePath.startsWith("/") ? referencePath : `/${referencePath}`) : null,
     opens_at: opensAt ? new Date(opensAt).toISOString() : null,
     closes_at: closesAt ? new Date(closesAt).toISOString() : null,
   });
