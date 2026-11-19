@@ -13,6 +13,7 @@ export interface SsbTest {
   status: SsbStatus;
   instructions: string | null;
   content_ref: string | null;
+  reference_path: string | null;
   opens_at: string | null;
   closes_at: string | null;
 }
@@ -24,6 +25,10 @@ export const DAYS = [
   { day: 4, title: "Day 4 — GTO Tasks (Part 2)", short: "GTO Tasks" },
   { day: 5, title: "Day 5 — Conference", short: "Conference" },
 ] as const;
+
+export const REFERENCE_NOTES: Record<string, string> = {
+  ppdt: "/ppdt",
+};
 
 export const STATUSES: SsbStatus[] = ["SOON", "AVAILABLE", "LIVE", "COMPLETED"];
 
@@ -44,7 +49,16 @@ export async function getSsbTest(id: string): Promise<SsbTest | null> {
 export async function updateSsbTest(id: string, patch: Partial<SsbTest>) {
   const client = getServiceClient();
   if (!client) throw new Error("Service role key missing");
-  const { error } = await client.from("ssb_tests").update(patch).eq("id", id);
+  let body: Partial<SsbTest> = patch;
+  const { error } = await client.from("ssb_tests").update(body).eq("id", id);
+  if (error && /reference_path/.test(error.message)) {
+    // Column not migrated yet: save the rest rather than failing the edit.
+    body = { ...patch };
+    delete body.reference_path;
+    const retry = await client.from("ssb_tests").update(body).eq("id", id);
+    if (retry.error) throw new Error(retry.error.message);
+    return;
+  }
   if (error) throw new Error(error.message);
 }
 
