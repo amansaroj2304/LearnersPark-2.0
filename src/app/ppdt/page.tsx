@@ -91,6 +91,12 @@ export default function PpdtPage() {
   return (
     <>
       <SiteHeader />
+      <style>{`
+        @media print {
+          @page { size: A4; margin: 15mm; }
+          .ppdt-box { width: 3in !important; height: 3in !important; break-inside: avoid; }
+        }
+      `}</style>
       <main className="bg-bg-light">
         <Container className="py-12 sm:py-16">
           <nav aria-label="Breadcrumb" className="text-xs font-semibold text-ink/45">
@@ -178,27 +184,30 @@ export default function PpdtPage() {
 
               <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_240px]">
                 {/* Answer sheet box */}
-                <figure>
-                  <div className="relative aspect-[16/10] w-full rounded-md border-2 border-ink/70">
-                    <div className="absolute left-[10%] top-[12%] flex flex-col items-center rounded-full border-2 border-crimson px-4 py-3">
+                <figure className="flex flex-col items-center">
+                  <div
+                    className="ppdt-box relative rounded-sm border-2 border-ink/70"
+                    style={{ width: "min(3in, 100%)", aspectRatio: "1 / 1" }}
+                  >
+                    <div className="absolute left-[8%] top-[10%] flex flex-col items-center rounded-full border-2 border-crimson px-3 py-2">
                       <span className="text-sm font-bold text-ink">F</span>
                       <span className="text-sm font-bold text-ink">26</span>
                       <span className="text-sm font-bold text-ink">+</span>
                     </div>
-                    <div className="absolute right-[18%] top-[14%] flex flex-col items-center">
+                    <div className="absolute right-[12%] top-[12%] flex flex-col items-center">
                       <span className="text-sm font-bold text-ink">F</span>
                       <span className="text-sm font-bold text-ink">40</span>
                       <span className="text-sm font-bold text-ink">-</span>
                     </div>
-                    <div className="absolute bottom-[16%] left-1/2 flex -translate-x-1/2 flex-col items-center">
+                    <div className="absolute bottom-[12%] left-1/2 flex -translate-x-1/2 flex-col items-center">
                       <span className="text-sm font-bold text-ink">M</span>
                       <span className="text-sm font-bold text-ink">45</span>
                       <span className="text-sm font-bold text-ink">O</span>
                     </div>
                   </div>
-                  <figcaption className="mt-2 text-xs text-ink/50">
+                  <figcaption className="mt-2 text-center text-xs text-ink/50">
                     Each annotation reads letter · age · mood. The circled one, top left, is the main
-                    character.
+                    character. The box is 3 in × 3 in and prints at that size on A4.
                   </figcaption>
                 </figure>
 
