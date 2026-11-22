@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PpdtSample } from "@/lib/ppdt/config";
+import { SheetUpload } from "@/components/ppdt/sheet-upload";
 
 type Mode = "timed" | "practice";
 type Phase = "idle" | "perception" | "writing" | "done";
@@ -16,6 +17,8 @@ export function PpdtRunner({
   imageAvailable,
   mode = "timed",
   samples = [],
+  setSlug = "practice",
+  autoStart = false,
 }: {
   title: string;
   image: string;
@@ -23,6 +26,8 @@ export function PpdtRunner({
   imageAvailable: boolean;
   mode?: Mode;
   samples?: PpdtSample[];
+  setSlug?: string;
+  autoStart?: boolean;
 }) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [left, setLeft] = useState(0);
@@ -74,6 +79,15 @@ export function PpdtRunner({
   }, [phase, mode, startWriting, endWriting]);
 
   const running = phase === "perception" || phase === "writing";
+
+  const autoStarted = useRef(false);
+  useEffect(() => {
+    if (!autoStart || !imageAvailable || autoStarted.current) return;
+    autoStarted.current = true;
+    start();
+    // start() only touches refs and state setters, so running it once on mount is safe.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoStart, imageAvailable]);
 
   return (
     <div className="rounded-2xl border border-ink/10 bg-white p-5 sm:p-6">
@@ -212,6 +226,8 @@ export function PpdtRunner({
           and entry.
         </p>
       ) : null}
+
+      {phase !== "idle" ? <SheetUpload mode={mode} set={setSlug} /> : null}
     </div>
   );
 }

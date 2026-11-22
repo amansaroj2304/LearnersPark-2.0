@@ -219,16 +219,31 @@ export default function PpdtPage() {
             This is a practice structure, not an official assessment. Task order and timing vary by board
             and entry.
           </p>
-          <p className="mt-4 inline-flex rounded-full border border-gold/50 bg-gold/15 px-3 py-1 text-xs font-semibold text-[#7a5c10]">
-            Reference notes only — practice test coming
-          </p>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Link href="/ppdt/practice" className="inline-flex h-10 items-center rounded-lg bg-crimson px-5 text-sm font-semibold text-white hover:bg-crimson-shape">
-              Practice with the picture visible
+          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            <a href="#day1" className="group rounded-2xl border border-ink/10 bg-white p-5 transition hover:border-crimson/40">
+              <p className="text-xs font-bold tracking-[0.14em] text-crimson uppercase">Notes</p>
+              <h2 className="mt-2 text-base font-bold text-ink">Read notes</h2>
+              <p className="mt-1 text-xs leading-relaxed text-ink/55">
+                Day 1 walkthrough, what to write, and the answer-sheet format.
+              </p>
+              <span className="mt-3 inline-block text-sm font-semibold text-crimson">Read the notes →</span>
+            </a>
+            <Link href="/ppdt/practice" className="group rounded-2xl border border-ink/10 bg-white p-5 transition hover:border-crimson/40">
+              <p className="text-xs font-bold tracking-[0.14em] text-crimson uppercase">Practice</p>
+              <h2 className="mt-2 text-base font-bold text-ink">Practice</h2>
+              <p className="mt-1 text-xs leading-relaxed text-ink/55">
+                Practice mode with the picture visible, or timed mode with 30 s look and 4 min write.
+              </p>
+              <span className="mt-3 inline-block text-sm font-semibold text-crimson">Start practising →</span>
             </Link>
-            <Link href="/ppdt/sets" className="inline-flex h-10 items-center rounded-lg border border-ink/15 px-5 text-sm font-semibold text-ink hover:bg-ink/5">
-              10 timed sets
-            </Link>
+            <a href="/docs/ppdt-practice-sheet.pdf" target="_blank" rel="noreferrer" className="group rounded-2xl border border-ink/10 bg-white p-5 transition hover:border-crimson/40">
+              <p className="text-xs font-bold tracking-[0.14em] text-crimson uppercase">PDF</p>
+              <h2 className="mt-2 text-base font-bold text-ink">Practice sheet</h2>
+              <p className="mt-1 text-xs leading-relaxed text-ink/55">
+                The answer sheet with chest no., batch no., story and action boxes. Print it or fill it in.
+              </p>
+              <span className="mt-3 inline-block text-sm font-semibold text-crimson">Open the sheet →</span>
+            </a>
           </div>
 
           {/* Day 1 walkthrough */}

@@ -36,6 +36,7 @@ export default async function PpdtSetPage({ params }: { params: Promise<{ slug: 
               alt={set.alt}
               imageAvailable={available}
               mode="timed"
+              setSlug={set.slug}
             />
           </div>
           <p className="mt-6 text-sm text-ink/50">
