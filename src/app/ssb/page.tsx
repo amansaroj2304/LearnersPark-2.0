@@ -15,6 +15,10 @@ export const metadata: Metadata = {
     "The full SSB sequence day by day: screening, psychological tests, GTO tasks, interview and conference, with practice modules as they open.",
 };
 
+/** Tests that have a runnable practice module alongside their notes. */
+const PRACTICE_HREF: Record<string, string> = {
+  ppdt: "/ppdt/practice",
+};
 const BADGE: Record<string, { label: string; cls: string }> = {
   SOON: { label: "Soon", cls: "bg-gold/20 text-[#7a5c10]" },
   AVAILABLE: { label: "Available", cls: "bg-[#2f9e5b]/12 text-[#256e42]" },
@@ -24,6 +28,7 @@ const BADGE: Record<string, { label: string; cls: string }> = {
 
 function TestCard({ test }: { test: SsbTest }) {
   const notes = test.reference_path ?? REFERENCE_NOTES[test.id] ?? null;
+  const practice = PRACTICE_HREF[test.id] ?? null;
   const badge = notes && !isOpen(test) ? { label: "Reference notes", cls: "bg-gold/20 text-[#7a5c10]" } : BADGE[test.status] ?? BADGE.SOON;
   const open = isOpen(test);
   return (
@@ -51,12 +56,22 @@ function TestCard({ test }: { test: SsbTest }) {
             Start test
           </Link>
         ) : notes ? (
-          <Link
-            href={notes}
-            className="inline-flex h-9 items-center rounded-lg border border-ink/15 px-4 text-sm font-semibold text-ink hover:bg-ink/5"
-          >
-            Read notes
-          </Link>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Link
+              href={notes}
+              className="inline-flex h-9 items-center rounded-lg border border-ink/15 px-4 text-sm font-semibold text-ink hover:bg-ink/5"
+            >
+              Read notes
+            </Link>
+            {practice ? (
+              <Link
+                href={practice}
+                className="inline-flex h-9 items-center rounded-lg bg-crimson px-4 text-sm font-semibold text-white hover:bg-crimson-shape"
+              >
+                Practice
+              </Link>
+            ) : null}
+          </div>
         ) : (
           <button
             type="button"
