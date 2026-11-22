@@ -97,13 +97,13 @@ export function PpdtRunner({
       <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div>
           {imageAvailable ? (
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-ink/15 bg-ink/5">
+            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-ink/15 bg-white">
               <Image
                 src={image}
                 alt={alt}
                 fill
                 sizes="(max-width: 1024px) 100vw, 640px"
-                className={`object-cover ${phase === "writing" && mode === "timed" ? "opacity-0" : ""}`}
+                className={`object-contain ${phase === "writing" && mode === "timed" ? "opacity-0" : ""}`}
                 priority
               />
               {phase === "writing" && mode === "timed" ? (
