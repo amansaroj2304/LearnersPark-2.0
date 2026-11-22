@@ -55,23 +55,20 @@ function TestCard({ test }: { test: SsbTest }) {
           >
             Start test
           </Link>
+        ) : practice ? (
+          <Link
+            href={practice}
+            className="inline-flex h-9 items-center rounded-lg bg-crimson px-4 text-sm font-semibold text-white hover:bg-crimson-shape"
+          >
+            Practice
+          </Link>
         ) : notes ? (
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <Link
-              href={notes}
-              className="inline-flex h-9 items-center rounded-lg border border-ink/15 px-4 text-sm font-semibold text-ink hover:bg-ink/5"
-            >
-              Read notes
-            </Link>
-            {practice ? (
-              <Link
-                href={practice}
-                className="inline-flex h-9 items-center rounded-lg bg-crimson px-4 text-sm font-semibold text-white hover:bg-crimson-shape"
-              >
-                Practice
-              </Link>
-            ) : null}
-          </div>
+          <Link
+            href={notes}
+            className="inline-flex h-9 items-center rounded-lg border border-ink/15 px-4 text-sm font-semibold text-ink hover:bg-ink/5"
+          >
+            Read notes
+          </Link>
         ) : (
           <button
             type="button"
