@@ -222,6 +222,14 @@ export default function PpdtPage() {
           <p className="mt-4 inline-flex rounded-full border border-gold/50 bg-gold/15 px-3 py-1 text-xs font-semibold text-[#7a5c10]">
             Reference notes only — practice test coming
           </p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link href="/ppdt/practice" className="inline-flex h-10 items-center rounded-lg bg-crimson px-5 text-sm font-semibold text-white hover:bg-crimson-shape">
+              Practice with the picture visible
+            </Link>
+            <Link href="/ppdt/sets" className="inline-flex h-10 items-center rounded-lg border border-ink/15 px-5 text-sm font-semibold text-ink hover:bg-ink/5">
+              10 timed sets
+            </Link>
+          </div>
 
           {/* Day 1 walkthrough */}
           <section className="mt-12" aria-labelledby="day1">
