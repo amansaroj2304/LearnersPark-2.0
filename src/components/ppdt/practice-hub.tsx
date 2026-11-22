@@ -1,10 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import type { PpdtSample } from "@/lib/ppdt/config";
 import { PpdtRunner } from "@/components/ppdt/runner";
 
 type Mode = "practice" | "timed";
+
+export type HubSet = { slug: string; title: string; image: string; alt: string; available: boolean };
 
 const STEPS = [
   ["Look at the picture", "30 seconds in the real test. Count the characters, note their age, sex and mood."],
@@ -13,60 +16,49 @@ const STEPS = [
   ["Check and upload", "Compare with the sample stories, then upload a photo of your handwritten sheet."],
 ] as const;
 
-const TILES: { id: Mode; title: string; tag: string; body: string; cta: string }[] = [
-  {
-    id: "practice",
-    title: "Practice mode",
-    tag: "Picture stays visible",
-    body: "No clock pressure. The picture stays on screen, a count-up timer runs, and sample stories can be revealed once you have written yours.",
-    cta: "Start practice mode",
-  },
-  {
-    id: "timed",
-    title: "Timed mode",
-    tag: "Real timing · picture withdrawn",
-    body: "The real sequence: 30 seconds to look, the picture is withdrawn, then 4 minutes to write from memory.",
-    cta: "Start timed mode",
-  },
-];
-
 export function PracticeHub({
   image,
   alt,
   imageAvailable,
   samples,
+  sets,
 }: {
   image: string;
   alt: string;
   imageAvailable: boolean;
   samples: PpdtSample[];
+  sets: HubSet[];
 }) {
-  const [mode, setMode] = useState<Mode | null>(null);
+  const [choice, setChoice] = useState<{ mode: Mode; set?: HubSet } | null>(null);
 
-  if (mode) {
+  if (choice) {
+    const isTimed = choice.mode === "timed";
+    const set = choice.set;
     return (
       <div>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm font-semibold text-ink/60">
-            {mode === "practice" ? "Practice mode — picture stays visible" : "Timed mode — 30 s look, 4 min write"}
+            {isTimed && set
+              ? `Timed mode — ${set.title} · 30 s look, 4 min write`
+              : "Practice mode — picture stays visible"}
           </p>
           <button
             type="button"
-            onClick={() => setMode(null)}
+            onClick={() => setChoice(null)}
             className="h-9 rounded-lg border border-ink/15 px-4 text-sm font-semibold text-ink hover:bg-ink/5"
           >
             Change mode
           </button>
         </div>
         <PpdtRunner
-          key={mode}
-          title={mode === "practice" ? "PPDT practice" : "PPDT timed practice"}
-          image={image}
-          alt={alt}
-          imageAvailable={imageAvailable}
-          mode={mode}
+          key={`${choice.mode}-${set?.slug ?? "practice"}`}
+          title={isTimed && set ? set.title : "PPDT practice"}
+          image={set ? set.image : image}
+          alt={set ? set.alt : alt}
+          imageAvailable={set ? set.available : imageAvailable}
+          mode={choice.mode}
           samples={samples}
-          setSlug="practice"
+          setSlug={set ? set.slug : "practice"}
           autoStart
         />
       </div>
@@ -99,24 +91,60 @@ export function PracticeHub({
         </p>
       </section>
 
-      <section aria-label="Choose a practice mode" className="grid gap-4 sm:grid-cols-2">
-        {TILES.map((t) => (
-          <article key={t.id} className="flex flex-col rounded-2xl border border-ink/10 bg-white p-5 sm:p-6">
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="text-base font-bold text-ink">{t.title}</h3>
-              <span className="rounded-full bg-ink/5 px-2.5 py-1 text-[11px] font-semibold text-ink/60">{t.tag}</span>
-            </div>
-            <p className="mt-2 flex-1 text-sm leading-relaxed text-ink/60">{t.body}</p>
+      <section aria-label="Practice mode" className="rounded-2xl border border-ink/10 bg-white p-5 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-base font-bold text-ink">Practice mode</h2>
+          <span className="rounded-full bg-ink/5 px-2.5 py-1 text-[11px] font-semibold text-ink/60">
+            Picture stays visible
+          </span>
+        </div>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/60">
+          No clock pressure. The picture stays on screen, a count-up timer runs, and sample stories can be
+          revealed once you have written yours.
+        </p>
+        <button
+          type="button"
+          onClick={() => setChoice({ mode: "practice" })}
+          disabled={!imageAvailable}
+          className="mt-4 inline-flex h-10 items-center justify-center rounded-lg bg-crimson px-5 text-sm font-semibold text-white hover:bg-crimson-shape disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {imageAvailable ? "Start practice mode" : "Picture not uploaded yet"}
+        </button>
+      </section>
+
+      <section aria-label="Timed mode sets" className="rounded-2xl border border-ink/10 bg-white p-5 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-base font-bold text-ink">Timed mode</h2>
+          <span className="rounded-full bg-ink/5 px-2.5 py-1 text-[11px] font-semibold text-ink/60">
+            Real timing · picture withdrawn
+          </span>
+        </div>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/60">
+          The real sequence: 30 seconds to look, the picture is withdrawn, then 4 minutes to write from
+          memory. Ten independent sets — do any one of them on its own, in any order.
+        </p>
+        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+          {sets.map((s) => (
             <button
+              key={s.slug}
               type="button"
-              onClick={() => setMode(t.id)}
-              disabled={!imageAvailable}
-              className="mt-4 inline-flex h-10 items-center justify-center rounded-lg bg-crimson px-5 text-sm font-semibold text-white hover:bg-crimson-shape disabled:cursor-not-allowed disabled:opacity-40"
+              onClick={() => setChoice({ mode: "timed", set: s })}
+              disabled={!s.available}
+              className="flex h-16 flex-col items-start justify-center rounded-xl border border-ink/15 px-3 text-left transition hover:border-crimson hover:bg-crimson/[0.04] disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {imageAvailable ? t.cta : "Picture not uploaded yet"}
+              <span className="text-sm font-bold text-ink">{s.title.replace("PPDT Test ", "")}</span>
+              <span className="text-[11px] text-ink/50">30 s look · 4 min write</span>
             </button>
-          </article>
-        ))}
+          ))}
+        </div>
+        <p className="mt-3 text-xs text-ink/45">
+          Each set has its own picture and its own clock; they do not depend on each other. The full
+          standalone list is also at{" "}
+          <Link href="/ppdt/sets" className="font-semibold text-crimson hover:underline">
+            All PPDT sets
+          </Link>
+          .
+        </p>
       </section>
     </div>
   );

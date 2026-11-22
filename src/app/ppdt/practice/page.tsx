@@ -5,10 +5,18 @@ import { Container } from "@/components/ui/container";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { PracticeHub } from "@/components/ppdt/practice-hub";
-import { PRACTICE } from "@/lib/ppdt/config";
+import { PRACTICE, SETS } from "@/lib/ppdt/config";
 
 export default function PpdtPracticePage() {
-  const available = fs.existsSync(path.join(process.cwd(), "public", PRACTICE.image));
+  const available = (image: string) => fs.existsSync(path.join(process.cwd(), "public", image));
+  const sets = SETS.map((s) => ({
+    slug: s.slug,
+    title: s.title,
+    image: s.image,
+    alt: `${s.title} picture`,
+    available: available(s.image),
+  }));
+
   return (
     <>
       <SiteHeader />
@@ -20,15 +28,16 @@ export default function PpdtPracticePage() {
             Write your first story
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-ink/60">
-            Read the four steps, pick a mode, and the picture opens with its timer. When you are done you can
-            upload a photo of your handwritten sheet.
+            Read the four steps, pick practice mode or any one of the ten timed sets, and the picture opens
+            with its timer. When you are done you can upload a photo of your handwritten sheet.
           </p>
           <div className="mt-6">
             <PracticeHub
               image={PRACTICE.image}
               alt={PRACTICE.alt}
-              imageAvailable={available}
+              imageAvailable={available(PRACTICE.image)}
               samples={PRACTICE.samples}
+              sets={sets}
             />
           </div>
         </Container>
