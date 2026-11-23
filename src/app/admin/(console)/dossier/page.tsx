@@ -1,4 +1,5 @@
 import { listDossierSubmissions } from "@/app/dossier/actions";
+import { SyncNowButton } from "./sync-button";
 
 export const instant = false;
 
@@ -7,10 +8,19 @@ export default async function AdminDossierPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-5 py-10 sm:px-8">
-      <h1 className="text-2xl font-extrabold tracking-tight text-ink">Daily dossier submissions</h1>
-      <p className="mt-2 max-w-2xl text-sm text-ink/60">
-        Every submitted Day dossier, grouped by student and day. Files are also copied into Google Drive under
-        DAILY DOSSIER SSB / Day N / StudentID_Name at the next sync. Links below expire after 24 hours.
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-extrabold tracking-tight text-ink">Daily dossier submissions</h1>
+          <p className="mt-2 max-w-2xl text-sm text-ink/60">
+            Every submitted Day dossier, grouped by student and day. Files are also copied into Google Drive under
+            DAILY DOSSIER SSB / Day N / StudentID_Name at the next sync. Links below expire after 24 hours.
+          </p>
+        </div>
+        <SyncNowButton />
+      </div>
+      <p className="mt-3 max-w-2xl text-xs text-ink/45">
+        “Sync now” immediately copies pending PPDT sheets and dossier submissions to Drive (ppdt uploaded and
+        DAILY DOSSIER SSB). An automatic sync also runs every hour.
       </p>
 
       {!data.ok ? (

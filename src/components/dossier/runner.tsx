@@ -262,6 +262,9 @@ export function DossierRunner({
 
   const sectionLabel =
     stage === "tat" ? "TAT" : stage === "wat" ? `WAT · word ${watIndex + 1}/${day.wat.length}` : stage === "srt" ? `SRT · situation ${srtIndex + 1}/${day.srt.length}` : stage === "prep" ? "Lecturette · preparation" : stage === "speak" ? "Lecturette · speaking" : "";
+  // Like the real TAT: the picture is shown for 30 seconds, then withdrawn.
+  const pictureSecondsLeft = Math.max(0, Math.min(30, left - (timings.tat - 30)));
+  const pictureVisible = pictureSecondsLeft > 0;
 
   return (
     <div className="rounded-2xl border border-ink/10 bg-white p-5 sm:p-6">
@@ -280,7 +283,7 @@ export function DossierRunner({
             then one Lecturette topic (3 min preparation, 3 min speaking). Answers save as you type.
           </p>
           <ul className="mt-3 space-y-1 text-xs text-ink/55">
-            <li>· TAT picture is shown only during the TAT section.</li>
+            <li>· TAT picture is shown for 30 seconds, then withdrawn — write from memory for the rest of the 4 minutes.</li>
             <li>· WAT and SRT advance automatically when the timer ends.</li>
             <li>· Refreshing the page does not lose your answers.</li>
           </ul>
@@ -308,9 +311,21 @@ export function DossierRunner({
         <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
           <div>
             {imageAvailable ? (
-              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-ink/15 bg-white">
-                <Image src={day.tat.image} alt={`Day ${day.day} TAT picture`} fill sizes="(max-width:1024px) 100vw, 640px" className="object-contain" priority />
-              </div>
+              pictureVisible ? (
+                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-ink/15 bg-white">
+                  <Image src={day.tat.image} alt={`Day ${day.day} TAT picture`} fill sizes="(max-width:1024px) 100vw, 640px" className="object-contain" priority />
+                  <span className="absolute right-2 top-2 rounded-full bg-ink/75 px-3 py-1 text-xs font-bold text-white">
+                    Withdraws in {pictureSecondsLeft} s
+                  </span>
+                </div>
+              ) : (
+                <div className="flex aspect-[4/3] w-full flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-crimson/30 bg-crimson/[0.04] p-6 text-center">
+                  <p className="text-sm font-bold text-crimson">Picture withdrawn</p>
+                  <p className="max-w-sm text-sm text-ink/60">
+                    The picture is shown for the first 30 seconds only, like the real test. Write your story from memory.
+                  </p>
+                </div>
+              )
             ) : (
               <div className="flex aspect-[4/3] w-full items-center justify-center rounded-xl border border-dashed border-ink/25 bg-ink/[0.03] p-6 text-center text-sm text-ink/50">
                 TAT picture for Day {day.day} has not been uploaded yet.
@@ -337,8 +352,10 @@ export function DossierRunner({
       ) : null}
 
       {stage === "wat" ? (
-        <div className="mt-4 max-w-xl">
-          <p className="text-3xl font-extrabold tracking-tight text-ink">{day.wat[watIndex]}</p>
+        <div className="mt-4 max-w-2xl">
+          <div className="flex min-h-[140px] items-center justify-center rounded-2xl border-2 border-ink/15 bg-white px-6 py-8 shadow-sm">
+            <p className="text-center text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">{day.wat[watIndex]}</p>
+          </div>
           <input
             autoFocus
             value={saved?.wat[watIndex]?.answer ?? ""}
@@ -354,7 +371,7 @@ export function DossierRunner({
               }
             }}
             placeholder="First sentence that comes to mind…"
-            className="mt-4 h-12 w-full rounded-xl border border-ink/15 px-3 text-sm"
+            className="mt-4 h-14 w-full rounded-xl border border-ink/15 px-4 text-base"
           />
           <div className="mt-3 flex items-center justify-between text-xs text-ink/45">
             <span>Word {watIndex + 1} of {day.wat.length} · 15 s each</span>
@@ -366,11 +383,14 @@ export function DossierRunner({
       ) : null}
 
       {stage === "srt" ? (
-        <div className="mt-4 max-w-2xl">
-          <p className="text-base font-semibold leading-relaxed text-ink">{day.srt[srtIndex]}</p>
+        <div className="mt-4 max-w-3xl">
+          <div className="rounded-2xl border-2 border-ink/15 bg-white px-6 py-6 shadow-sm">
+            <p className="text-xs font-bold tracking-[0.14em] text-crimson uppercase">Situation {srtIndex + 1}</p>
+            <p className="mt-2 text-xl font-semibold leading-relaxed text-ink sm:text-2xl">{day.srt[srtIndex]}</p>
+          </div>
           <textarea
             autoFocus
-            rows={3}
+            rows={5}
             value={saved?.srt[srtIndex]?.answer ?? ""}
             onChange={(e) => {
               const next = [...(saved?.srt ?? [])];
@@ -378,7 +398,7 @@ export function DossierRunner({
               persist({ srt: next });
             }}
             placeholder="What will you do?"
-            className="mt-3 w-full rounded-xl border border-ink/15 px-3 py-2 text-sm"
+            className="mt-3 w-full rounded-xl border border-ink/15 px-4 py-3 text-base leading-relaxed"
           />
           <div className="mt-2 flex items-center justify-between text-xs text-ink/45">
             <span>Situation {srtIndex + 1} of {day.srt.length} · 30 s each</span>
@@ -444,16 +464,24 @@ export function DossierRunner({
             </div>
           </div>
 
-          <form onSubmit={submit} className="rounded-xl border border-ink/10 p-4">
-            <p className="text-sm font-bold text-ink">Submit your Day {day.day} dossier</p>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <label className="text-xs font-semibold text-ink/60">
-                Completed dossier (PDF, optional)
-                <input name="final" type="file" accept="application/pdf" className="mt-1 block w-full text-xs" />
+          <form onSubmit={submit} className="rounded-2xl border-2 border-crimson/45 bg-crimson/[0.04] p-5 shadow-[0_8px_30px_rgba(128,0,32,0.08)] sm:p-6">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-7 items-center rounded-full bg-crimson px-3 text-[11px] font-bold uppercase tracking-[0.12em] text-white">
+                Final step
+              </span>
+              <p className="text-base font-extrabold text-ink">Submit your Day {day.day} dossier</p>
+            </div>
+            <p className="mt-1 text-xs text-ink/55">
+              Uploads are optional — your typed answers are always saved.
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <label className="block rounded-xl border border-crimson/25 bg-white px-4 py-3 text-sm font-semibold text-ink">
+                Completed dossier <span className="font-normal text-ink/45">(PDF, optional)</span>
+                <input name="final" type="file" accept="application/pdf" className="mt-2 block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-crimson file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white" />
               </label>
-              <label className="text-xs font-semibold text-ink/60">
-                Lecturette recording (audio/video, optional)
-                <input name="media" type="file" accept="audio/*,video/*" className="mt-1 block w-full text-xs" />
+              <label className="block rounded-xl border border-crimson/25 bg-white px-4 py-3 text-sm font-semibold text-ink">
+                Lecturette recording <span className="font-normal text-ink/45">(audio/video, optional)</span>
+                <input name="media" type="file" accept="audio/*,video/*" className="mt-2 block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-crimson file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white" />
               </label>
             </div>
             <p className="mt-2 text-xs text-ink/45">
@@ -461,7 +489,7 @@ export function DossierRunner({
               DAILY DOSSIER SSB / Day {day.day} / {student.id}_{student.name.replace(/\s+/g, "_")}.
             </p>
             {message ? <p className="mt-2 text-xs font-semibold text-crimson">{message}</p> : null}
-            <button type="submit" disabled={busy} className="mt-3 h-10 rounded-lg bg-crimson px-5 text-sm font-semibold text-white disabled:opacity-50">
+            <button type="submit" disabled={busy} className="mt-4 h-11 rounded-lg bg-crimson px-6 text-sm font-bold text-white disabled:opacity-50">
               {busy ? "Submitting…" : "Submit dossier"}
             </button>
           </form>
