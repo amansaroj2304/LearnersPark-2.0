@@ -7,6 +7,7 @@ import { createClient } from "@supabase/supabase-js";
 import { createUploadTargets, saveDossierAttempt } from "@/app/dossier/actions";
 import type { DossierDay } from "@/lib/dossier/data";
 import { loadStudent, makeStudentId, saveStudent, type StudentProfile } from "@/lib/dossier/student";
+import { playClick } from "@/lib/sound";
 
 type Stage = "intro" | "tat" | "wat" | "srt" | "prep" | "speak" | "review" | "submitted";
 
@@ -57,6 +58,24 @@ export function DossierRunner({
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const tick = useRef<ReturnType<typeof setInterval> | null>(null);
+  // One clear cue at the moment the TAT picture is withdrawn (30 s in).
+  const withdrew = useRef(false);
+  const tatWithdrawAt = timings.tat - 30;
+
+  useEffect(() => {
+    if (stage !== "tat" || left <= 0) {
+      withdrew.current = false;
+      return;
+    }
+    if (left <= tatWithdrawAt) {
+      if (!withdrew.current) {
+        withdrew.current = true;
+        playClick("section");
+      }
+    } else {
+      withdrew.current = false;
+    }
+  }, [stage, left, tatWithdrawAt]);
 
   // Values live in localStorage, so they are read after mount to keep SSR output stable.
   // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -94,6 +113,8 @@ export function DossierRunner({
     (from: Stage) => {
       if (tick.current) clearInterval(tick.current);
       setRunning(false);
+      // Sound cue: a short click for every word/situation, double beep between sections.
+      playClick(from === "tat" || from === "srt" || from === "prep" ? "section" : "next");
       if (from === "tat") {
         persist({ stage: "wat" });
         setWatIndex(0);
@@ -153,6 +174,7 @@ export function DossierRunner({
   }, [running, stage, advance]);
 
   const startSection = (s: Stage) => {
+    playClick("section");
     setStage(s);
     persist({ stage: s, startedAt: saved?.startedAt ?? new Date().toISOString() });
     setLeft(s === "tat" ? timings.tat : s === "prep" ? timings.prep : s === "speak" ? timings.speak : 0);
@@ -279,11 +301,11 @@ export function DossierRunner({
       {stage === "intro" ? (
         <div className="mt-4">
           <p className="text-sm text-ink/65">
-            Four sections, in order: TAT story (4 min), 15 WAT words (15 s each), 10 SRT situations (30 s each),
+            Four sections, in order: TAT story (4 min 30 s), 15 WAT words (15 s each), 10 SRT situations (30 s each),
             then one Lecturette topic (3 min preparation, 3 min speaking). Answers save as you type.
           </p>
           <ul className="mt-3 space-y-1 text-xs text-ink/55">
-            <li>· TAT picture is shown for 30 seconds, then withdrawn — write from memory for the rest of the 4 minutes.</li>
+            <li>· TAT picture is shown for 30 seconds, then withdrawn — write from memory for the remaining 4 minutes.</li>
             <li>· WAT and SRT advance automatically when the timer ends.</li>
             <li>· Refreshing the page does not lose your answers.</li>
           </ul>
