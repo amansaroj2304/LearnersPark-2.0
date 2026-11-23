@@ -3,11 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
 import { createUploadTargets, saveDossierAttempt } from "@/app/dossier/actions";
 import type { DossierDay } from "@/lib/dossier/data";
 import { loadStudent, makeStudentId, saveStudent, type StudentProfile } from "@/lib/dossier/student";
 import { playClick } from "@/lib/sound";
+import { MAX_UPLOAD_BYTES, fileSizeLabel, uploadWithProgress } from "@/lib/upload";
 
 type Stage = "intro" | "tat" | "wat" | "srt" | "prep" | "speak" | "review" | "submitted";
 
@@ -57,6 +57,7 @@ export function DossierRunner({
   const [srtIndex, setSrtIndex] = useState(0);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [skippedNote, setSkippedNote] = useState<string | null>(null);
   const tick = useRef<ReturnType<typeof setInterval> | null>(null);
   // One clear cue at the moment the TAT picture is withdrawn (30 s in).
   const withdrew = useRef(false);
@@ -194,60 +195,80 @@ export function DossierRunner({
     if (!student || !saved) return;
     setBusy(true);
     setMessage(null);
-    const fd = new FormData(e.currentTarget);
-    const finalPdf = fd.get("final") as File | null;
-    const media = fd.get("media") as File | null;
-    const files: { kind: string; ext: string }[] = [];
-    if (finalPdf && finalPdf.size > 0) files.push({ kind: "FINAL_DOSSIER", ext: finalPdf.name.split(".").pop() ?? "pdf" });
-    if (media && media.size > 0) files.push({ kind: "LECTURETTE", ext: media.name.split(".").pop() ?? "mp4" });
-
-    const targets = await createUploadTargets(student.id, student.name, day.day, files);
-    if (!targets.ok || !targets.targets) {
-      setBusy(false);
-      setMessage(targets.message ?? "Could not prepare the upload.");
-      return;
-    }
-
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    );
+    const skipped: string[] = [];
     const uploaded: { kind: string; path: string }[] = [];
-    const list = [finalPdf, media].filter((f): f is File => !!f && f.size > 0);
-    for (let i = 0; i < list.length; i++) {
-      const t = targets.targets[i];
-      const { error } = await supabase.storage.from("dossier-uploads").uploadToSignedUrl(t.path, t.token, list[i]);
-      if (error) {
-        setBusy(false);
-        setMessage(`Upload failed: ${error.message}`);
-        return;
-      }
-      uploaded.push({ kind: t.kind, path: t.path });
-    }
+    try {
+      const fd = new FormData(e.currentTarget);
+      const finalPdf = fd.get("final") as File | null;
+      const media = fd.get("media") as File | null;
+      // Oversized attachments are skipped with a clear note instead of hanging:
+      // storage rejects anything over 50 MB.
+      const picked = [
+        { file: finalPdf, kind: "FINAL_DOSSIER", label: "Completed dossier" },
+        { file: media, kind: "LECTURETTE", label: "Lecturette recording" },
+      ].filter((f): f is { file: File; kind: string; label: string } => !!f.file && f.file.size > 0);
+      const list = picked.filter((f) => {
+        if (f.file.size > MAX_UPLOAD_BYTES) {
+          skipped.push(`${f.label} (${fileSizeLabel(f.file.size)} — 50 MB limit)`);
+          return false;
+        }
+        return true;
+      });
+      const files = list.map((f) => ({ kind: f.kind, ext: f.file.name.split(".").pop() ?? "bin" }));
 
-    const started = new Date(saved.startedAt).getTime();
-    const res = await saveDossierAttempt(
-      student,
-      {
-        day: day.day,
-        status: "SUBMITTED",
-        startedAt: saved.startedAt,
-        submittedAt: new Date().toISOString(),
-        totalSeconds: Math.round((Date.now() - started) / 1000),
-        tat: saved.tat,
-        wat: day.wat.map((w, i) => ({ word: w, ...saved.wat[i] })),
-        srt: day.srt.map((s, i) => ({ situation: s, ...saved.srt[i] })),
-        lecturette: { topic: day.lecturette, ...saved.lecturette },
-        files: uploaded,
-      },
-    );
-    setBusy(false);
-    if (!res.ok) {
-      setMessage(res.message);
-      return;
+      if (files.length) {
+        const targets = await createUploadTargets(student.id, student.name, day.day, files);
+        if (!targets.ok || !targets.targets) throw new Error(targets.message ?? "Could not prepare the upload.");
+        for (let i = 0; i < list.length; i++) {
+          const t = targets.targets[i];
+          const f = list[i];
+          try {
+            await uploadWithProgress(t.path, t.token, f.file, (pct) =>
+              setMessage(`Uploading ${f.label.toLowerCase()}… ${pct}%`),
+            );
+            uploaded.push({ kind: t.kind, path: t.path });
+          } catch (err) {
+            const reason = err instanceof Error ? err.message : "upload failed";
+            if (/too large/i.test(reason)) {
+              skipped.push(`${f.label} (${fileSizeLabel(f.file.size)} — 50 MB limit)`);
+            } else {
+              throw new Error(`${f.label}: ${reason}`);
+            }
+          }
+        }
+      }
+
+      setMessage("Saving your answers…");
+      const started = new Date(saved.startedAt).getTime();
+      const res = await saveDossierAttempt(
+        student,
+        {
+          day: day.day,
+          status: "SUBMITTED",
+          startedAt: saved.startedAt,
+          submittedAt: new Date().toISOString(),
+          totalSeconds: Math.round((Date.now() - started) / 1000),
+          tat: saved.tat,
+          wat: day.wat.map((w, i) => ({ word: w, ...saved.wat[i] })),
+          srt: day.srt.map((s, i) => ({ situation: s, ...saved.srt[i] })),
+          lecturette: { topic: day.lecturette, ...saved.lecturette },
+          files: uploaded,
+        },
+      );
+      if (!res.ok) throw new Error(res.message);
+      if (skipped.length) {
+        setSkippedNote(`Not uploaded (over the 50 MB limit): ${skipped.join("; ")}. Your typed answers were saved.`);
+      }
+      setMessage(null);
+      persist({ status: "SUBMITTED", stage: "submitted", submittedAt: new Date().toISOString() });
+      setStage("submitted");
+    } catch (err) {
+      setMessage(
+        `${err instanceof Error ? err.message : "Submission failed"}. Your answers are still saved on this device — please try again.`,
+      );
+    } finally {
+      setBusy(false);
     }
-    persist({ status: "SUBMITTED", stage: "submitted", submittedAt: new Date().toISOString() });
-    setStage("submitted");
   }
 
   if (!student) {
@@ -494,15 +515,15 @@ export function DossierRunner({
               <p className="text-base font-extrabold text-ink">Submit your Day {day.day} dossier</p>
             </div>
             <p className="mt-1 text-xs text-ink/55">
-              Uploads are optional — your typed answers are always saved.
+              Uploads are optional — your typed answers are always saved. Each file must be under 50 MB.
             </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <label className="block rounded-xl border border-crimson/25 bg-white px-4 py-3 text-sm font-semibold text-ink">
-                Completed dossier <span className="font-normal text-ink/45">(PDF, optional)</span>
-                <input name="final" type="file" accept="application/pdf" className="mt-2 block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-crimson file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white" />
+                Completed dossier <span className="font-normal text-ink/45">(PDF or photo, optional)</span>
+                <input name="final" type="file" accept="application/pdf,image/*" className="mt-2 block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-crimson file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white" />
               </label>
               <label className="block rounded-xl border border-crimson/25 bg-white px-4 py-3 text-sm font-semibold text-ink">
-                Lecturette recording <span className="font-normal text-ink/45">(audio/video, optional)</span>
+                Lecturette recording <span className="font-normal text-ink/45">(audio/video, optional, max 50 MB)</span>
                 <input name="media" type="file" accept="audio/*,video/*" className="mt-2 block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-crimson file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white" />
               </label>
             </div>
@@ -524,6 +545,11 @@ export function DossierRunner({
           <p className="mt-2 text-sm text-ink/60">
             Your answers are stored under your student ID and copied into Google Drive (DAILY DOSSIER SSB / Day {day.day}) at the next sync.
           </p>
+          {skippedNote ? (
+            <p className="mt-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
+              {skippedNote}
+            </p>
+          ) : null}
           <div className="mt-4 flex flex-wrap gap-2">
             <Link href="/dossier" className="h-10 rounded-lg bg-crimson px-5 pt-2.5 text-sm font-semibold text-white">
               Back to dashboard
