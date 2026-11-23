@@ -22,7 +22,7 @@ export default function PpdtPracticePage() {
       <SiteHeader />
       <main className="bg-bg-light">
         <Container className="py-12 sm:py-16">
-          <Link href="/ppdt" className="text-sm font-semibold text-crimson hover:underline">← PPDT notes</Link>
+          <Link href="/ppdt" className="text-sm font-semibold text-crimson hover:underline">← PPDT home</Link>
           <p className="mt-6 text-xs font-bold tracking-[0.16em] text-crimson uppercase">PPDT · Practice</p>
           <h1 className="mt-2 text-[clamp(1.8rem,4vw,2.6rem)] font-extrabold tracking-[-0.03em] text-ink">
             Write your first story
