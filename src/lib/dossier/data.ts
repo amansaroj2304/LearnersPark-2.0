@@ -13,7 +13,7 @@ export interface DossierDay {
 }
 
 export const TIMINGS = {
-  tatSeconds: 4 * 60,
+  tatSeconds: 4 * 60 + 30,
   watWordSeconds: 15,
   srtSeconds: 30,
   lecturettePrepSeconds: 3 * 60,
