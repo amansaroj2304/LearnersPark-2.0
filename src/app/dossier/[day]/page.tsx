@@ -27,7 +27,7 @@ export default async function DossierDayPage({ params }: { params: Promise<{ day
             Day {day.day} practice dossier
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-ink/60">
-            TAT · WAT (15 words) · SRT (10 situations) · Lecturette. Work in order; answers save automatically.
+            TAT · WAT (15 words) · SRT (10 situations) · Lecturette. Work in order; write your answers by hand and upload photos at the end.
           </p>
           <div className="mt-6">
             <DossierRunner

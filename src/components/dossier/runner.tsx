@@ -199,14 +199,17 @@ export function DossierRunner({
     const uploaded: { kind: string; path: string }[] = [];
     try {
       const fd = new FormData(e.currentTarget);
-      const finalPdf = fd.get("final") as File | null;
+      const sheets = fd.getAll("sheets").filter((f): f is File => f instanceof File && f.size > 0);
       const media = fd.get("media") as File | null;
       // Oversized attachments are skipped with a clear note instead of hanging:
       // storage rejects anything over 50 MB.
       const picked = [
-        { file: finalPdf, kind: "FINAL_DOSSIER", label: "Completed dossier" },
+        ...sheets.map((file, i) => ({ file, kind: "HANDWRITTEN", label: `Handwritten sheet ${i + 1}` })),
         { file: media, kind: "LECTURETTE", label: "Lecturette recording" },
       ].filter((f): f is { file: File; kind: string; label: string } => !!f.file && f.file.size > 0);
+      if (!picked.some((f) => f.kind === "HANDWRITTEN")) {
+        throw new Error("Please add at least one photo or PDF of your handwritten sheets");
+      }
       const list = picked.filter((f) => {
         if (f.file.size > MAX_UPLOAD_BYTES) {
           skipped.push(`${f.label} (${fileSizeLabel(f.file.size)} — 50 MB limit)`);
@@ -257,7 +260,7 @@ export function DossierRunner({
       );
       if (!res.ok) throw new Error(res.message);
       if (skipped.length) {
-        setSkippedNote(`Not uploaded (over the 50 MB limit): ${skipped.join("; ")}. Your typed answers were saved.`);
+        setSkippedNote(`Not uploaded (over the 50 MB limit): ${skipped.join("; ")}. Your submission was still recorded.`);
       }
       setMessage(null);
       persist({ status: "SUBMITTED", stage: "submitted", submittedAt: new Date().toISOString() });
@@ -323,12 +326,13 @@ export function DossierRunner({
         <div className="mt-4">
           <p className="text-sm text-ink/65">
             Four sections, in order: TAT story (4 min 30 s), 15 WAT words (15 s each), 10 SRT situations (30 s each),
-            then one Lecturette topic (3 min preparation, 3 min speaking). Answers save as you type.
+            then one Lecturette topic (3 min preparation, 3 min speaking). Write every answer <strong>by hand on paper</strong> —
+            there are no typing boxes.
           </p>
           <ul className="mt-3 space-y-1 text-xs text-ink/55">
             <li>· TAT picture is shown for 30 seconds, then withdrawn — write from memory for the remaining 4 minutes.</li>
             <li>· WAT and SRT advance automatically when the timer ends.</li>
-            <li>· Refreshing the page does not lose your answers.</li>
+            <li>· At the end, upload clear photos (or a PDF) of your handwritten sheets.</li>
           </ul>
           {saved && saved.stage !== "intro" ? (
             <p className="mt-3 text-xs font-semibold text-[#7a5c10]">You have a saved attempt in progress — resume where you left off.</p>
@@ -351,7 +355,7 @@ export function DossierRunner({
       ) : null}
 
       {stage === "tat" ? (
-        <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
           <div>
             {imageAvailable ? (
               pictureVisible ? (
@@ -376,20 +380,15 @@ export function DossierRunner({
             )}
             <p className="mt-3 text-xs text-ink/55">{day.tat.prompt}</p>
           </div>
-          <div>
-            <textarea
-              value={saved?.tat.text ?? ""}
-              onChange={(e) => persist({ tat: { text: e.target.value, secondsUsed: timings.tat - left } })}
-              rows={12}
-              placeholder="Write your story here…"
-              className="w-full rounded-xl border border-ink/15 px-3 py-2 text-sm leading-relaxed"
-            />
-            <div className="mt-2 flex items-center justify-between">
-              <span className="text-xs text-ink/45">{(saved?.tat.text ?? "").trim().split(/\s+/).filter(Boolean).length} words</span>
-              <button type="button" onClick={() => advance("tat")} className="h-9 rounded-lg border border-ink/15 px-4 text-sm font-semibold text-ink hover:bg-ink/5">
-                Finish TAT early
-              </button>
-            </div>
+          <div className="rounded-2xl border-2 border-crimson/30 bg-crimson/[0.03] p-5">
+            <p className="text-sm font-bold text-ink">Write your story on paper</p>
+            <p className="mt-2 text-sm text-ink/60">
+              Use the answer sheet. You have {fmt(timings.tat)} in total; the picture disappears after 30 seconds.
+            </p>
+            <p className="mt-2 text-xs text-ink/45">Upload a photo of the sheet at the final step.</p>
+            <button type="button" onClick={() => advance("tat")} className="mt-4 h-9 rounded-lg border border-ink/15 bg-white px-4 text-sm font-semibold text-ink hover:bg-ink/5">
+              Finish TAT early
+            </button>
           </div>
         </div>
       ) : null}
@@ -399,23 +398,9 @@ export function DossierRunner({
           <div className="flex min-h-[140px] items-center justify-center rounded-2xl border-2 border-ink/15 bg-white px-6 py-8 shadow-sm">
             <p className="text-center text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">{day.wat[watIndex]}</p>
           </div>
-          <input
-            autoFocus
-            value={saved?.wat[watIndex]?.answer ?? ""}
-            onChange={(e) => {
-              const next = [...(saved?.wat ?? [])];
-              next[watIndex] = { answer: e.target.value, secondsUsed: timings.watWord - left };
-              persist({ wat: next });
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                advance("wat");
-              }
-            }}
-            placeholder="First sentence that comes to mind…"
-            className="mt-4 h-14 w-full rounded-xl border border-ink/15 px-4 text-base"
-          />
+          <p className="mt-4 rounded-xl border border-ink/10 bg-ink/[0.02] px-4 py-3 text-sm text-ink/60">
+            Write your first sentence for this word in your answer sheet. The next word appears automatically after 15 seconds.
+          </p>
           <div className="mt-3 flex items-center justify-between text-xs text-ink/45">
             <span>Word {watIndex + 1} of {day.wat.length} · 15 s each</span>
             <button type="button" onClick={() => advance("wat")} className="h-8 rounded-lg border border-ink/15 px-3 text-xs font-semibold text-ink hover:bg-ink/5">
@@ -431,18 +416,9 @@ export function DossierRunner({
             <p className="text-xs font-bold tracking-[0.14em] text-crimson uppercase">Situation {srtIndex + 1}</p>
             <p className="mt-2 text-xl font-semibold leading-relaxed text-ink sm:text-2xl">{day.srt[srtIndex]}</p>
           </div>
-          <textarea
-            autoFocus
-            rows={5}
-            value={saved?.srt[srtIndex]?.answer ?? ""}
-            onChange={(e) => {
-              const next = [...(saved?.srt ?? [])];
-              next[srtIndex] = { answer: e.target.value, secondsUsed: timings.srt - left };
-              persist({ srt: next });
-            }}
-            placeholder="What will you do?"
-            className="mt-3 w-full rounded-xl border border-ink/15 px-4 py-3 text-base leading-relaxed"
-          />
+          <p className="mt-3 rounded-xl border border-ink/10 bg-ink/[0.02] px-4 py-3 text-sm text-ink/60">
+            Write your response in your answer sheet. The next situation appears automatically after 30 seconds.
+          </p>
           <div className="mt-2 flex items-center justify-between text-xs text-ink/45">
             <span>Situation {srtIndex + 1} of {day.srt.length} · 30 s each</span>
             <button type="button" onClick={() => advance("srt")} className="h-8 rounded-lg border border-ink/15 px-3 text-xs font-semibold text-ink hover:bg-ink/5">
@@ -458,26 +434,18 @@ export function DossierRunner({
           <p className="mt-1 text-lg font-bold text-ink">{day.lecturette}</p>
           {stage === "prep" ? (
             <>
-              <p className="mt-3 text-sm text-ink/55">Preparation — jot your outline (3 minutes).</p>
-              <textarea
-                rows={8}
-                value={saved.lecturette.prepNotes}
-                onChange={(e) => persist({ lecturette: { ...saved.lecturette, prepNotes: e.target.value, prepUsed: timings.prep - left } })}
-                className="mt-2 w-full rounded-xl border border-ink/15 px-3 py-2 text-sm"
-              />
+              <p className="mt-3 rounded-xl border border-ink/10 bg-ink/[0.02] px-4 py-3 text-sm text-ink/60">
+                Preparation — jot your outline on paper (3 minutes). You may upload a photo of your outline at the end.
+              </p>
               <button type="button" onClick={() => advance("prep")} className="mt-2 h-9 rounded-lg border border-ink/15 px-4 text-sm font-semibold text-ink hover:bg-ink/5">
                 Start speaking early
               </button>
             </>
           ) : (
             <>
-              <p className="mt-3 text-sm text-ink/55">Speak for 3 minutes. Note key points as you speak, or record and upload the file at the end.</p>
-              <textarea
-                rows={8}
-                value={saved.lecturette.speakNotes}
-                onChange={(e) => persist({ lecturette: { ...saved.lecturette, speakNotes: e.target.value, speakUsed: timings.speak - left } })}
-                className="mt-2 w-full rounded-xl border border-ink/15 px-3 py-2 text-sm"
-              />
+              <p className="mt-3 rounded-xl border border-ink/10 bg-ink/[0.02] px-4 py-3 text-sm text-ink/60">
+                Speak for 3 minutes. Record it on your phone (or write notes on paper) and upload at the final step.
+              </p>
               <button type="button" onClick={() => advance("speak")} className="mt-2 h-9 rounded-lg border border-ink/15 px-4 text-sm font-semibold text-ink hover:bg-ink/5">
                 Finish early
               </button>
@@ -488,23 +456,9 @@ export function DossierRunner({
 
       {stage === "review" && saved ? (
         <div className="mt-4 space-y-5">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-xl border border-ink/10 p-4">
-              <p className="text-xs font-bold uppercase text-ink/45">TAT story</p>
-              <p className="mt-1 line-clamp-4 text-sm text-ink/70">{saved.tat.text || "—"}</p>
-            </div>
-            <div className="rounded-xl border border-ink/10 p-4">
-              <p className="text-xs font-bold uppercase text-ink/45">WAT answers</p>
-              <p className="mt-1 text-sm text-ink/70">{saved.wat.filter((w) => w.answer.trim()).length}/{day.wat.length} answered</p>
-            </div>
-            <div className="rounded-xl border border-ink/10 p-4">
-              <p className="text-xs font-bold uppercase text-ink/45">SRT answers</p>
-              <p className="mt-1 text-sm text-ink/70">{saved.srt.filter((s) => s.answer.trim()).length}/{day.srt.length} answered</p>
-            </div>
-            <div className="rounded-xl border border-ink/10 p-4">
-              <p className="text-xs font-bold uppercase text-ink/45">Lecturette</p>
-              <p className="mt-1 text-sm text-ink/70">{day.lecturette}</p>
-            </div>
+          <div className="rounded-xl border border-ink/10 p-4">
+            <p className="text-xs font-bold uppercase text-ink/45">Lecturette topic</p>
+            <p className="mt-1 text-sm text-ink/70">{day.lecturette}</p>
           </div>
 
           <form onSubmit={submit} className="rounded-2xl border-2 border-crimson/45 bg-crimson/[0.04] p-5 shadow-[0_8px_30px_rgba(128,0,32,0.08)] sm:p-6">
@@ -512,15 +466,15 @@ export function DossierRunner({
               <span className="inline-flex h-7 items-center rounded-full bg-crimson px-3 text-[11px] font-bold uppercase tracking-[0.12em] text-white">
                 Final step
               </span>
-              <p className="text-base font-extrabold text-ink">Submit your Day {day.day} dossier</p>
+              <p className="text-base font-extrabold text-ink">Upload your handwritten Day {day.day} sheets</p>
             </div>
             <p className="mt-1 text-xs text-ink/55">
-              Uploads are optional — your typed answers are always saved. Each file must be under 50 MB.
+              Take clear photos of every written page (TAT, WAT, SRT and lecturette notes) or upload a scanned PDF. Each file must be under 50 MB.
             </p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="mt-4 grid gap-3">
               <label className="block rounded-xl border border-crimson/25 bg-white px-4 py-3 text-sm font-semibold text-ink">
-                Completed dossier <span className="font-normal text-ink/45">(PDF or photo, optional)</span>
-                <input name="final" type="file" accept="application/pdf,image/*" className="mt-2 block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-crimson file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white" />
+                Handwritten sheets <span className="font-normal text-ink/45">(photos or PDF — you can pick several)</span>
+                <input name="sheets" type="file" accept="application/pdf,image/*" multiple required className="mt-2 block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-crimson file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white" />
               </label>
               <label className="block rounded-xl border border-crimson/25 bg-white px-4 py-3 text-sm font-semibold text-ink">
                 Lecturette recording <span className="font-normal text-ink/45">(audio/video, optional, max 50 MB)</span>
@@ -528,7 +482,7 @@ export function DossierRunner({
               </label>
             </div>
             <p className="mt-2 text-xs text-ink/45">
-              Typed answers are saved with your student ID ({student.id}) and copied into the Drive folder
+              Files are saved with your student ID ({student.id}) and copied into the Drive folder
               DAILY DOSSIER SSB / Day {day.day} / {student.id}_{student.name.replace(/\s+/g, "_")}.
             </p>
             {message ? <p className="mt-2 text-xs font-semibold text-crimson">{message}</p> : null}
@@ -543,7 +497,7 @@ export function DossierRunner({
         <div className="mt-4">
           <p className="text-sm font-semibold text-[#256e42]">Day {day.day} submitted{saved?.submittedAt ? ` on ${new Date(saved.submittedAt).toLocaleString()}` : ""}.</p>
           <p className="mt-2 text-sm text-ink/60">
-            Your answers are stored under your student ID and copied into Google Drive (DAILY DOSSIER SSB / Day {day.day}) at the next sync.
+            Your sheets are saved under your student ID and copied into Google Drive (DAILY DOSSIER SSB / Day {day.day}) at the next sync.
           </p>
           {skippedNote ? (
             <p className="mt-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
