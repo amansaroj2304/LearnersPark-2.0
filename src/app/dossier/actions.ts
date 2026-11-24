@@ -78,7 +78,7 @@ export async function saveDossierAttempt(
     console.error("dossier save failed", error.message);
     return { ok: false, message: "The submission did not save. Please try again." };
   }
-  return { ok: true, message: "Dossier submitted." };
+  return { ok: true, message: "Drill submitted." };
 }
 
 export async function listDossierSubmissions(): Promise<{

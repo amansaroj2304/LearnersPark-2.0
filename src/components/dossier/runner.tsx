@@ -315,7 +315,7 @@ export function DossierRunner({
   return (
     <div className="rounded-2xl border border-ink/10 bg-white p-5 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-bold text-ink">Day {day.day} dossier</h2>
+        <h2 className="text-lg font-bold text-ink">Day {day.day} drill</h2>
         <span className="rounded-full bg-ink/5 px-3 py-1 text-sm font-semibold text-ink/70">
           {sectionLabel || (stage === "review" ? "Review & submit" : stage === "submitted" ? "Submitted" : "Ready")}
           {running ? ` · ${fmt(left)}` : ""}
@@ -487,7 +487,7 @@ export function DossierRunner({
             </p>
             {message ? <p className="mt-2 text-xs font-semibold text-crimson">{message}</p> : null}
             <button type="submit" disabled={busy} className="mt-4 h-11 rounded-lg bg-crimson px-6 text-sm font-bold text-white disabled:opacity-50">
-              {busy ? "Submitting…" : "Submit dossier"}
+              {busy ? "Submitting…" : "Submit drill"}
             </button>
           </form>
         </div>

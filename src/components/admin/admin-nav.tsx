@@ -24,7 +24,7 @@ const items = [
   { href: "/admin/tests", label: "Tests", icon: BookOpenCheck },
   { href: "/admin/opam", label: "OPAM", icon: BrainCircuit },
   { href: "/admin/ssb", label: "SSB tests", icon: ShieldCheck },
-  { href: "/admin/dossier", label: "Daily dossier", icon: ClipboardList },
+  { href: "/admin/dossier", label: "Daily drills", icon: ClipboardList },
   { href: "/admin/logins", label: "Login activity", icon: LogIn },
   { href: "/admin/audit", label: "Audit log", icon: ScrollText },
   { href: "/admin/account", label: "Account", icon: KeyRound },
