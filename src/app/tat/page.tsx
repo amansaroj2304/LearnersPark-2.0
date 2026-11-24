@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
-import { PICTURES_PER_SET, SETS, TAT_TIMINGS } from "@/lib/tat/config";
+import { PICTURES_PER_SET, SETS, SLIDES_PER_SET, TAT_TIMINGS } from "@/lib/tat/config";
 
 export const metadata: Metadata = {
   title: "TAT — Thematic Apperception Test practice sets | Learners Park",
   description:
-    "Practise the SSB TAT with 25 timed picture sets: 11 pictures per set, 30 seconds to look and 4 minutes 30 seconds to write each story.",
+    "Practise the SSB TAT with 25 timed picture sets: 11 pictures and a blank slide per set, 30 seconds to look and 4 minutes 30 seconds to write each story.",
 };
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -31,17 +30,17 @@ export default function TatPage() {
             Thematic Apperception Test
           </h1>
           <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-ink/65">
-            {SETS.length} practice sets, each with {PICTURES_PER_SET} pictures. Every picture stays on screen for{" "}
-            {TAT_TIMINGS.lookSeconds} seconds, then is withdrawn and you get {Math.floor(TAT_TIMINGS.writeSeconds / 60)}{" "}
-            minutes {TAT_TIMINGS.writeSeconds % 60} seconds to write the story on your sheet. A double beep marks each
-            change, so you can write with the screen half in view.
+            {SETS.length} practice sets, each with {PICTURES_PER_SET} pictures and one blank slide. Every slide stays
+            on screen for {TAT_TIMINGS.lookSeconds} seconds, then is withdrawn and you get{" "}
+            {Math.floor(TAT_TIMINGS.writeSeconds / 60)} minutes {TAT_TIMINGS.writeSeconds % 60} seconds to write the
+            story on your sheet. A double beep marks each change, so you can write with the screen half in view.
           </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             {[
-              { k: "30 s", v: "Picture on screen — build character, mood and action." },
-              { k: "4:30", v: "Picture withdrawn — write the story from memory." },
-              { k: "11", v: "Pictures per set, running back to back like the real test." },
+              { k: "30 s", v: "Slide on screen — build character, mood and action." },
+              { k: "4:30", v: "Slide withdrawn — write the story from memory." },
+              { k: "12", v: "Slides per set — 11 pictures and a blank slide, back to back." },
             ].map((s) => (
               <div key={s.k} className="rounded-xl border border-ink/10 bg-white p-4">
                 <p className="text-2xl font-extrabold text-crimson">{s.k}</p>
@@ -56,33 +55,28 @@ export default function TatPage() {
             <span className="text-xs font-semibold text-ink/40">{SETS.length} sets</span>
           </div>
 
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {SETS.map((s) => (
-              <article key={s.id} className="flex flex-col overflow-hidden rounded-2xl border border-ink/10 bg-white">
-                <div className="relative aspect-[4/3] w-full bg-ink/[0.03]">
-                  <Image
-                    src={s.images[0]}
-                    alt={`${s.title} first picture`}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px"
-                    className="object-cover"
-                  />
-                  <span className="absolute left-3 top-3 rounded bg-ink/80 px-2 py-0.5 text-[11px] font-bold text-white">
-                    Set {pad(s.id)}
-                  </span>
-                </div>
-                <div className="flex flex-1 flex-col p-4">
+              <article key={s.id} className="flex items-center gap-4 rounded-2xl border border-ink/10 bg-white p-4">
+                <span
+                  aria-hidden="true"
+                  className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-ink text-lg font-extrabold text-white"
+                >
+                  {pad(s.id)}
+                </span>
+                <div className="min-w-0 flex-1">
                   <h3 className="text-base font-bold text-ink">{s.title}</h3>
-                  <p className="mt-1 flex-1 text-xs text-ink/55">
-                    {PICTURES_PER_SET} pictures · 30 s look · 4:30 write each
+                  <p className="mt-0.5 text-xs text-ink/55">
+                    {PICTURES_PER_SET} pictures + blank · {SLIDES_PER_SET} slides
                   </p>
-                  <Link
-                    href={`/tat/set/${s.id}`}
-                    className="mt-3 inline-flex h-9 w-fit items-center rounded-lg bg-crimson px-4 text-sm font-semibold text-white hover:bg-crimson-shape"
-                  >
-                    Practice
-                  </Link>
+                  <p className="text-xs text-ink/45">30 s look · 4:30 write each</p>
                 </div>
+                <Link
+                  href={`/tat/set/${s.id}`}
+                  className="inline-flex h-9 shrink-0 items-center rounded-lg bg-crimson px-4 text-sm font-semibold text-white hover:bg-crimson-shape"
+                >
+                  Practice
+                </Link>
               </article>
             ))}
           </div>

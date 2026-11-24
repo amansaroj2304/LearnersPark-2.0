@@ -3,18 +3,23 @@
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import { playClick } from "@/lib/sound";
-import { PICTURES_PER_SET, TAT_TIMINGS } from "@/lib/tat/config";
+import { TAT_TIMINGS } from "@/lib/tat/config";
 
 type Phase = "idle" | "look" | "write" | "done";
 
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
 export function TatRunner({ title, images }: { title: string; images: string[] }) {
-  const total = images.length || PICTURES_PER_SET;
+  // The last slide of every TAT set is blank: no picture, you invent the story.
+  const pictureCount = images.length;
+  const total = pictureCount + 1;
   const [phase, setPhase] = useState<Phase>("idle");
   const [index, setIndex] = useState(0);
   const [left, setLeft] = useState<number>(TAT_TIMINGS.lookSeconds);
   const [paused, setPaused] = useState(false);
+
+  const isBlank = index >= pictureCount;
+  const currentImage = isBlank ? null : images[index];
 
   const advance = useCallback(() => {
     setIndex((i) => {
@@ -37,7 +42,7 @@ export function TatRunner({ title, images }: { title: string; images: string[] }
     return () => clearInterval(id);
   }, [phase, paused]);
 
-  // When a clock reaches zero: withdraw the picture, or move to the next one.
+  // When a clock reaches zero: withdraw the slide, or move to the next one.
   useEffect(() => {
     if (left > 0) return;
     if (phase === "look") {
@@ -66,7 +71,13 @@ export function TatRunner({ title, images }: { title: string; images: string[] }
         <div>
           <h2 className="text-lg font-bold text-ink">{title}</h2>
           <p className="text-xs font-semibold text-ink/45">
-            {phase === "idle" ? `${total} pictures` : phase === "done" ? "Set complete" : `Picture ${index + 1} of ${total}`}
+            {phase === "idle"
+              ? `${pictureCount} pictures + blank slide`
+              : phase === "done"
+                ? "Set complete"
+                : isBlank
+                  ? `Slide ${index + 1} of ${total} · blank`
+                  : `Slide ${index + 1} of ${total}`}
           </p>
         </div>
         <div className="flex items-center gap-2 text-sm">
@@ -85,10 +96,26 @@ export function TatRunner({ title, images }: { title: string; images: string[] }
       <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div>
           <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-ink/15 bg-white">
-            {phase === "look" || phase === "idle" ? (
+            {phase === "idle" ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-bg-light px-6 text-center">
+                <p className="text-xs font-bold tracking-[0.16em] text-crimson uppercase">{title}</p>
+                <p className="text-sm text-ink/55">
+                  {pictureCount} pictures and one blank slide. Press start when your sheet and pen are ready.
+                </p>
+                <button
+                  type="button"
+                  onClick={start}
+                  className="mt-1 inline-flex h-11 items-center rounded-lg bg-crimson px-6 text-sm font-semibold text-white hover:bg-crimson-shape"
+                >
+                  Start set
+                </button>
+              </div>
+            ) : null}
+
+            {phase === "look" && currentImage ? (
               <Image
-                key={images[index]}
-                src={images[index]}
+                key={currentImage}
+                src={currentImage}
                 alt="TAT practice picture"
                 fill
                 sizes="(max-width: 1024px) 100vw, 720px"
@@ -97,15 +124,10 @@ export function TatRunner({ title, images }: { title: string; images: string[] }
               />
             ) : null}
 
-            {phase === "idle" ? (
-              <div className="absolute inset-0 flex items-center justify-center bg-white/70">
-                <button
-                  type="button"
-                  onClick={start}
-                  className="inline-flex h-11 items-center rounded-lg bg-crimson px-6 text-sm font-semibold text-white hover:bg-crimson-shape"
-                >
-                  Start set
-                </button>
+            {phase === "look" && isBlank ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-white px-6 text-center">
+                <p className="text-base font-bold text-ink/70">Blank slide</p>
+                <p className="text-sm text-ink/45">No picture this time — invent your own and build the story.</p>
               </div>
             ) : null}
 
@@ -117,8 +139,10 @@ export function TatRunner({ title, images }: { title: string; images: string[] }
 
             {phase === "write" ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-white px-6 text-center">
-                <p className="text-base font-bold text-ink/70">Picture withdrawn</p>
-                <p className="text-sm text-ink/45">Write the story from memory on your sheet.</p>
+                <p className="text-base font-bold text-ink/70">{isBlank ? "Blank slide withdrawn" : "Picture withdrawn"}</p>
+                <p className="text-sm text-ink/45">
+                  {isBlank ? "Write the story you imagined on your sheet." : "Write the story from memory on your sheet."}
+                </p>
                 <p className="mt-2 text-3xl font-extrabold tabular-nums text-crimson">{fmt(left)}</p>
               </div>
             ) : null}
@@ -126,7 +150,9 @@ export function TatRunner({ title, images }: { title: string; images: string[] }
             {phase === "done" ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-white px-6 text-center">
                 <p className="text-base font-bold text-ink">Set complete</p>
-                <p className="text-sm text-ink/50">All {total} pictures done. Check your stories against the TAT notes.</p>
+                <p className="text-sm text-ink/50">
+                  All {pictureCount} pictures and the blank slide done. Check your stories against the TAT notes.
+                </p>
                 <button
                   type="button"
                   onClick={start}
@@ -166,7 +192,7 @@ export function TatRunner({ title, images }: { title: string; images: string[] }
                   }}
                   className="inline-flex h-10 items-center rounded-lg border border-ink/15 px-4 text-sm font-semibold text-ink hover:bg-ink/5"
                 >
-                  {index < total - 1 ? "Next picture" : "Finish set"}
+                  {index < total - 1 ? "Next slide" : "Finish set"}
                 </button>
                 <button
                   type="button"
@@ -192,22 +218,23 @@ export function TatRunner({ title, images }: { title: string; images: string[] }
           <div className="rounded-xl border border-ink/10 bg-bg-light p-4">
             <h3 className="text-xs font-bold tracking-[0.12em] text-ink/50 uppercase">How this set runs</h3>
             <ul className="mt-2 space-y-1.5 text-xs leading-relaxed text-ink/60">
-              <li>· {total} pictures, one after another, like the real TAT.</li>
+              <li>· {pictureCount} pictures, one after another, like the real TAT.</li>
               <li>· Each picture stays for 30 seconds, then is withdrawn.</li>
               <li>· 4 minutes 30 seconds to write each story on your sheet.</li>
-              <li>· A double beep marks every picture change and withdrawal.</li>
+              <li>· The 12th slide is blank — invent the picture and the story.</li>
+              <li>· A double beep marks every slide change and withdrawal.</li>
             </ul>
           </div>
 
           <div className="rounded-xl border border-ink/10 p-4">
             <h3 className="text-xs font-bold tracking-[0.12em] text-ink/50 uppercase">Progress</h3>
-            <div className="mt-3 grid grid-cols-6 gap-1.5" aria-label="Picture progress">
-              {images.map((img, i) => {
+            <div className="mt-3 grid grid-cols-6 gap-1.5" aria-label="Slide progress">
+              {Array.from({ length: total }, (_, i) => {
                 const done = phase === "done" || i < index;
                 const current = running && i === index;
                 return (
                   <span
-                    key={img}
+                    key={i}
                     className={`flex h-7 items-center justify-center rounded text-[11px] font-bold ${
                       current
                         ? "bg-crimson text-white"
@@ -215,12 +242,14 @@ export function TatRunner({ title, images }: { title: string; images: string[] }
                           ? "bg-[#2f9e5b]/15 text-[#256e42]"
                           : "bg-ink/5 text-ink/40"
                     }`}
+                    title={i === pictureCount ? "Blank slide" : `Slide ${i + 1}`}
                   >
                     {i + 1}
                   </span>
                 );
               })}
             </div>
+            <p className="mt-2 text-[11px] text-ink/40">Slide {total} is the blank slide.</p>
           </div>
 
           <p className="text-xs leading-relaxed text-ink/45">
@@ -230,7 +259,7 @@ export function TatRunner({ title, images }: { title: string; images: string[] }
         </div>
       </div>
 
-      {/* Preload the remaining pictures so a change never waits on the network. */}
+      {/* Preload the pictures so a change never waits on the network. */}
       <div className="hidden" aria-hidden="true">
         {images.map((img) => (
           // eslint-disable-next-line @next/next/no-img-element
