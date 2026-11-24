@@ -18,6 +18,7 @@ export const metadata: Metadata = {
 /** Tests that have a runnable practice module alongside their notes. */
 const PRACTICE_HREF: Record<string, string> = {
   ppdt: "/ppdt",
+  tat: "/tat",
 };
 const BADGE: Record<string, { label: string; cls: string }> = {
   SOON: { label: "Soon", cls: "bg-gold/20 text-[#7a5c10]" },
