@@ -31,7 +31,9 @@ export async function createUploadTargets(
   const targets: UploadTarget[] = [];
   for (const f of files) {
     const ext = (f.ext || "bin").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 5) || "bin";
-    const path = `${dir}/${f.kind}-${Date.now()}.${ext}`;
+    const kind = (f.kind || "FILE").replace(/[^A-Za-z0-9_]/g, "").slice(0, 24) || "FILE";
+    // Random suffix keeps several handwritten pages uploaded in the same millisecond apart.
+    const path = `${dir}/${kind}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`;
     const { data, error } = await client.storage.from(BUCKET).createSignedUploadUrl(path);
     if (error || !data) return { ok: false, message: error?.message ?? "Could not prepare the upload." };
     targets.push({ kind: f.kind, path: data.path, token: data.token });
