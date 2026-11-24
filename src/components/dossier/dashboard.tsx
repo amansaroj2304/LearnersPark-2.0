@@ -150,7 +150,7 @@ export function DossierDashboard({ days }: { days: DayMeta[] }) {
         </div>
       </section>
 
-      <section aria-label="Daily dossiers" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <section aria-label="Daily drills" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {days.map((d) => {
           const s = state[d.day];
           const status = s?.status ?? "NOT STARTED";

@@ -22,9 +22,9 @@ export default async function DossierDayPage({ params }: { params: Promise<{ day
       <main className="bg-bg-light">
         <Container className="py-12 sm:py-16">
           <Link href="/dossier" className="text-sm font-semibold text-crimson hover:underline">← All 15 days</Link>
-          <p className="mt-6 text-xs font-bold tracking-[0.16em] text-crimson uppercase">SSB Daily Dossier · Day {day.day}</p>
+          <p className="mt-6 text-xs font-bold tracking-[0.16em] text-crimson uppercase">SSB Daily Drills · Day {day.day}</p>
           <h1 className="mt-2 text-[clamp(1.8rem,4vw,2.6rem)] font-extrabold tracking-[-0.03em] text-ink">
-            Day {day.day} practice dossier
+            Day {day.day} practice drill
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-ink/60">
             TAT · WAT (15 words) · SRT (10 situations) · Lecturette. Work in order; write your answers by hand and upload photos at the end.
