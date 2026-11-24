@@ -5,8 +5,11 @@ export const TAT_TIMINGS = {
   writeSeconds: 4 * 60 + 30,
 } as const;
 
-/** Pictures per set, as in the SSB TAT (11 pictures, usually followed by a blank slide). */
+/** Pictures per set, as in the SSB TAT. */
 export const PICTURES_PER_SET = 11;
+
+/** 11 pictures plus one blank slide (the 12th), where you invent your own picture. */
+export const SLIDES_PER_SET = PICTURES_PER_SET + 1;
 
 /** Only the sets whose pictures have been published are listed. */
 export const SET_COUNT = 25;
