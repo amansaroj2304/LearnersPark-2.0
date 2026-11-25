@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ n: string
   if (!set) return { title: "TAT set not found | Learners Park" };
   return {
     title: `${set.title} — TAT practice | Learners Park`,
-    description: `Timed SSB TAT practice: 11 pictures and a blank slide, 30 seconds look and 4 minutes 30 seconds write for each slide.`,
+    description: `Timed SSB TAT practice: 11 pictures and a blank slide, 30 seconds look and 4 minutes write for each slide.`,
   };
 }
 
@@ -50,7 +50,7 @@ export default async function TatSetPage({ params }: { params: Promise<{ n: stri
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-ink/60">
             Keep a sheet and pen ready. Press Start, look at each slide for 30 seconds, then write for 4 minutes
-            30 seconds after it is withdrawn. The 12th slide is blank — invent the picture. The next slide comes up
+            after it is withdrawn. The 12th slide is blank — invent the picture. The next slide comes up
             on its own.
           </p>
 

@@ -1,8 +1,8 @@
 export const TAT_TIMINGS = {
   /** The picture stays on screen for 30 seconds. */
   lookSeconds: 30,
-  /** 4 minutes 30 seconds to write after the picture is withdrawn. */
-  writeSeconds: 4 * 60 + 30,
+  /** 4 minutes to write after the picture is withdrawn. */
+  writeSeconds: 4 * 60,
 } as const;
 
 /** Pictures per set, as in the SSB TAT. */

@@ -88,7 +88,7 @@ export function TatRunner({ title, images }: { title: string; images: string[] }
                 ? `Write — ${fmt(left)}`
                 : phase === "done"
                   ? "Time up"
-                  : "30 s look · 4 min 30 s write"}
+                  : "30 s look · 4 min write"}
           </span>
         </div>
       </div>
@@ -220,7 +220,7 @@ export function TatRunner({ title, images }: { title: string; images: string[] }
             <ul className="mt-2 space-y-1.5 text-xs leading-relaxed text-ink/60">
               <li>· {pictureCount} pictures, one after another, like the real TAT.</li>
               <li>· Each picture stays for 30 seconds, then is withdrawn.</li>
-              <li>· 4 minutes 30 seconds to write each story on your sheet.</li>
+              <li>· 4 minutes to write each story on your sheet.</li>
               <li>· The 12th slide is blank — invent the picture and the story.</li>
               <li>· A double beep marks every slide change and withdrawal.</li>
             </ul>
@@ -254,7 +254,7 @@ export function TatRunner({ title, images }: { title: string; images: string[] }
 
           <p className="text-xs leading-relaxed text-ink/45">
             Write on paper, not here — this runner is a timed practice aid, not an assessment. Timing follows the
-            usual TAT pattern (30 s look, 4 min 30 s write); boards may vary.
+            usual TAT pattern (30 s look, 4 min write); boards may vary.
           </p>
         </div>
       </div>
