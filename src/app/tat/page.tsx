@@ -8,7 +8,7 @@ import { PICTURES_PER_SET, SETS, SLIDES_PER_SET, TAT_TIMINGS } from "@/lib/tat/c
 export const metadata: Metadata = {
   title: "TAT — Thematic Apperception Test practice sets | Learners Park",
   description:
-    "Practise the SSB TAT with 25 timed picture sets: 11 pictures and a blank slide per set, 30 seconds to look and 4 minutes 30 seconds to write each story.",
+    "Practise the SSB TAT with 25 timed picture sets: 11 pictures and a blank slide per set, 30 seconds to look and 4 minutes to write each story.",
 };
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -32,14 +32,13 @@ export default function TatPage() {
           <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-ink/65">
             {SETS.length} practice sets, each with {PICTURES_PER_SET} pictures and one blank slide. Every slide stays
             on screen for {TAT_TIMINGS.lookSeconds} seconds, then is withdrawn and you get{" "}
-            {Math.floor(TAT_TIMINGS.writeSeconds / 60)} minutes {TAT_TIMINGS.writeSeconds % 60} seconds to write the
-            story on your sheet. A double beep marks each change, so you can write with the screen half in view.
+            {Math.floor(TAT_TIMINGS.writeSeconds / 60)} minutes to write the story on your sheet. A double beep marks each change, so you can write with the screen half in view.
           </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             {[
               { k: "30 s", v: "Slide on screen — build character, mood and action." },
-              { k: "4:30", v: "Slide withdrawn — write the story from memory." },
+              { k: "4:00", v: "Slide withdrawn — write the story from memory." },
               { k: "12", v: "Slides per set — 11 pictures and a blank slide, back to back." },
             ].map((s) => (
               <div key={s.k} className="rounded-xl border border-ink/10 bg-white p-4">
@@ -69,7 +68,7 @@ export default function TatPage() {
                   <p className="mt-0.5 text-xs text-ink/55">
                     {PICTURES_PER_SET} pictures + blank · {SLIDES_PER_SET} slides
                   </p>
-                  <p className="text-xs text-ink/45">30 s look · 4:30 write each</p>
+                  <p className="text-xs text-ink/45">30 s look · 4 min write each</p>
                 </div>
                 <Link
                   href={`/tat/set/${s.id}`}
