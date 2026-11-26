@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import fs from "node:fs";
@@ -6,9 +7,23 @@ import { Container } from "@/components/ui/container";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { DossierRunner } from "@/components/dossier/runner";
-import { getDay, TIMINGS } from "@/lib/dossier/data";
+import { DAYS, getDay, TIMINGS } from "@/lib/dossier/data";
 
 export const instant = false;
+
+export function generateStaticParams() {
+  return DAYS.map((d) => ({ day: String(d.day) }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ day: string }> }): Promise<Metadata> {
+  const { day: raw } = await params;
+  const day = getDay(Number(raw));
+  if (!day) return { title: "Daily drill not found | Learners Park" };
+  return {
+    title: `SSB Daily Drills — Day ${day.day} practice drill | Learners Park`,
+    description: `Day ${day.day} of the SSB Daily Drills: TAT, 15 WAT words, 10 SRT situations and a lecturette, written by hand.`,
+  };
+}
 
 export default async function DossierDayPage({ params }: { params: Promise<{ day: string }> }) {
   const { day: raw } = await params;

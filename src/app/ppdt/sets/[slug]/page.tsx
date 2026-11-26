@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import fs from "node:fs";
@@ -6,9 +7,23 @@ import { Container } from "@/components/ui/container";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { PpdtRunner } from "@/components/ppdt/runner";
-import { getSet } from "@/lib/ppdt/config";
+import { getSet, SETS } from "@/lib/ppdt/config";
 
 export const instant = false;
+
+export function generateStaticParams() {
+  return SETS.map((s) => ({ slug: s.slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const set = getSet(slug);
+  if (!set) return { title: "PPDT set not found | Learners Park" };
+  return {
+    title: `${set.title} — PPDT practice | Learners Park`,
+    description: "Timed PPDT practice: 30 seconds to look at the picture and 4 minutes to write the story.",
+  };
+}
 
 export default async function PpdtSetPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

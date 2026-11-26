@@ -36,6 +36,8 @@ export function PpdtRunner({
   const [showSamples, setShowSamples] = useState(false);
   const startedAt = useRef<number>(0);
   const phaseRef = useRef<Phase>("idle");
+  // Wall-clock deadline for the current timed phase.
+  const endsAt = useRef(0);
 
   const endWriting = useCallback(() => {
     phaseRef.current = "done";
@@ -45,7 +47,10 @@ export function PpdtRunner({
   const startWriting = useCallback(() => {
     phaseRef.current = "writing";
     setPhase("writing");
-    if (mode === "timed") setLeft(240);
+    if (mode === "timed") {
+      endsAt.current = Date.now() + 240 * 1000;
+      setLeft(240);
+    }
   }, [mode]);
 
   const start = () => {
@@ -56,6 +61,7 @@ export function PpdtRunner({
     if (mode === "timed") {
       phaseRef.current = "perception";
       setPhase("perception");
+      endsAt.current = Date.now() + 30 * 1000;
       setLeft(30);
     } else {
       startWriting();
@@ -64,19 +70,29 @@ export function PpdtRunner({
 
   useEffect(() => {
     if (phase === "idle" || phase === "done") return;
-    const id = setInterval(() => {
+    const update = () => {
       setElapsed(Math.floor((Date.now() - startedAt.current) / 1000));
       if (mode !== "timed") return;
-      setLeft((prev) => {
-        if (prev > 1) return prev - 1;
-        // The clock ran out: move on rather than stopping dead.
-        if (phaseRef.current === "perception") startWriting();
-        else endWriting();
-        return 0;
-      });
-    }, 1000);
-    return () => clearInterval(id);
-  }, [phase, mode, startWriting, endWriting]);
+      setLeft(Math.max(0, Math.ceil((endsAt.current - Date.now()) / 1000)));
+    };
+    update();
+    const id = setInterval(update, 250);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") update();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [phase, mode]);
+
+  // The clock ran out: move on rather than stopping dead.
+  useEffect(() => {
+    if (mode !== "timed" || left > 0) return;
+    if (phaseRef.current === "perception") startWriting();
+    else if (phaseRef.current === "writing") endWriting();
+  }, [left, mode, startWriting, endWriting]);
 
   const running = phase === "perception" || phase === "writing";
 

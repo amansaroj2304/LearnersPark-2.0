@@ -59,6 +59,13 @@ export function DossierRunner({
   const [message, setMessage] = useState<string | null>(null);
   const [skippedNote, setSkippedNote] = useState<string | null>(null);
   const tick = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Wall-clock deadline for the running phase, so a throttled or background tab
+  // cannot stretch the countdown.
+  const endsAt = useRef(0);
+  const beginPhase = useCallback((seconds: number) => {
+    endsAt.current = Date.now() + seconds * 1000;
+    setLeft(seconds);
+  }, []);
   // One clear cue at the moment the TAT picture is withdrawn (30 s in).
   const withdrew = useRef(false);
   const tatWithdrawAt = timings.tat - 30;
@@ -120,73 +127,79 @@ export function DossierRunner({
         persist({ stage: "wat" });
         setWatIndex(0);
         setStage("wat");
-        setLeft(timings.watWord);
+        beginPhase(timings.watWord);
         setRunning(true);
       } else if (from === "wat") {
         if (watIndex < day.wat.length - 1) {
           setWatIndex((i) => i + 1);
-          setLeft(timings.watWord);
+          beginPhase(timings.watWord);
           setRunning(true);
         } else {
           persist({ stage: "srt" });
           setSrtIndex(0);
           setStage("srt");
-          setLeft(timings.srt);
+          beginPhase(timings.srt);
           setRunning(true);
         }
       } else if (from === "srt") {
         if (srtIndex < day.srt.length - 1) {
           setSrtIndex((i) => i + 1);
-          setLeft(timings.srt);
+          beginPhase(timings.srt);
           setRunning(true);
         } else {
           persist({ stage: "prep" });
           setStage("prep");
-          setLeft(timings.prep);
+          beginPhase(timings.prep);
           setRunning(true);
         }
       } else if (from === "prep") {
         persist({ stage: "speak" });
         setStage("speak");
-        setLeft(timings.speak);
+        beginPhase(timings.speak);
         setRunning(true);
       } else if (from === "speak") {
         persist({ stage: "review" });
         setStage("review");
       }
     },
-    [day.wat.length, day.srt.length, persist, srtIndex, timings, watIndex],
+    [beginPhase, day.wat.length, day.srt.length, persist, srtIndex, timings, watIndex],
   );
 
   useEffect(() => {
     if (!running) return;
-    tick.current = setInterval(() => {
-      setLeft((l) => {
-        if (l <= 1) {
-          setTimeout(() => advance(stage), 0);
-          return 0;
-        }
-        return l - 1;
-      });
-    }, 1000);
+    const update = () => setLeft(Math.max(0, Math.ceil((endsAt.current - Date.now()) / 1000)));
+    update();
+    tick.current = setInterval(update, 250);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") update();
+    };
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
       if (tick.current) clearInterval(tick.current);
+      document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [running, stage, advance]);
+  }, [running]);
+
+  // Move on as soon as the running phase's clock reaches zero.
+  useEffect(() => {
+    if (!running || left > 0) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    advance(stage);
+  }, [left, running, stage, advance]);
 
   const startSection = (s: Stage) => {
     playClick("section");
     setStage(s);
     persist({ stage: s, startedAt: saved?.startedAt ?? new Date().toISOString() });
-    setLeft(s === "tat" ? timings.tat : s === "prep" ? timings.prep : s === "speak" ? timings.speak : 0);
+    beginPhase(s === "tat" ? timings.tat : s === "prep" ? timings.prep : s === "speak" ? timings.speak : 0);
     setRunning(s !== "review");
     if (s === "wat") {
       setWatIndex(0);
-      setLeft(timings.watWord);
+      beginPhase(timings.watWord);
     }
     if (s === "srt") {
       setSrtIndex(0);
-      setLeft(timings.srt);
+      beginPhase(timings.srt);
     }
   };
 

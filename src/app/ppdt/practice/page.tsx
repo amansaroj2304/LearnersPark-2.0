@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import fs from "node:fs";
 import path from "node:path";
@@ -6,6 +7,12 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { PracticeHub } from "@/components/ppdt/practice-hub";
 import { PRACTICE, SETS } from "@/lib/ppdt/config";
+
+export const metadata: Metadata = {
+  title: "PPDT practice mode and ten timed sets | Learners Park",
+  description:
+    "Practice PPDT with the picture visible or run one of ten timed sets: 30 seconds to look and 4 minutes to write the story.",
+};
 
 export default function PpdtPracticePage() {
   const available = (image: string) => fs.existsSync(path.join(process.cwd(), "public", image));

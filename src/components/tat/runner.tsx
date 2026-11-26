@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { playClick } from "@/lib/sound";
 import { TAT_TIMINGS } from "@/lib/tat/config";
 
@@ -17,29 +17,40 @@ export function TatRunner({ title, images }: { title: string; images: string[] }
   const [index, setIndex] = useState(0);
   const [left, setLeft] = useState<number>(TAT_TIMINGS.lookSeconds);
   const [paused, setPaused] = useState(false);
+  // Wall-clock deadline for the current phase. Countdowns are derived from this,
+  // so a throttled/background tab or a locked phone cannot stretch the timer.
+  const endsAt = useRef(0);
 
   const isBlank = index >= pictureCount;
   const currentImage = isBlank ? null : images[index];
 
   const advance = useCallback(() => {
-    setIndex((i) => {
-      if (i < total - 1) {
-        playClick("section");
-        setPhase("look");
-        setLeft(TAT_TIMINGS.lookSeconds);
-        return i + 1;
-      }
-      playClick("section");
+    playClick("section");
+    if (index < total - 1) {
+      endsAt.current = Date.now() + TAT_TIMINGS.lookSeconds * 1000;
+      setIndex(index + 1);
+      setPhase("look");
+      setLeft(TAT_TIMINGS.lookSeconds);
+    } else {
       setPhase("done");
-      return i;
-    });
-  }, [total]);
+    }
+  }, [index, total]);
 
-  // One tick per second while the clock is running.
+  // Tick several times a second and derive the remaining time from the deadline,
+  // so the countdown stays accurate even if the browser throttles timers.
   useEffect(() => {
     if ((phase !== "look" && phase !== "write") || paused) return;
-    const id = setInterval(() => setLeft((v) => Math.max(0, v - 1)), 1000);
-    return () => clearInterval(id);
+    const tick = () => setLeft(Math.max(0, Math.ceil((endsAt.current - Date.now()) / 1000)));
+    tick();
+    const id = setInterval(tick, 250);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") tick();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, [phase, paused]);
 
   // When a clock reaches zero: withdraw the slide, or move to the next one.
@@ -47,6 +58,7 @@ export function TatRunner({ title, images }: { title: string; images: string[] }
     if (left > 0) return;
     if (phase === "look") {
       playClick("section");
+      endsAt.current = Date.now() + TAT_TIMINGS.writeSeconds * 1000;
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setPhase("write");
       setLeft(TAT_TIMINGS.writeSeconds);
@@ -57,10 +69,21 @@ export function TatRunner({ title, images }: { title: string; images: string[] }
 
   const start = () => {
     playClick("section");
+    endsAt.current = Date.now() + TAT_TIMINGS.lookSeconds * 1000;
     setIndex(0);
     setPhase("look");
     setPaused(false);
     setLeft(TAT_TIMINGS.lookSeconds);
+  };
+
+  const togglePause = () => {
+    if (!paused) {
+      setLeft(Math.max(0, Math.ceil((endsAt.current - Date.now()) / 1000)));
+      setPaused(true);
+    } else {
+      endsAt.current = Date.now() + left * 1000;
+      setPaused(false);
+    }
   };
 
   const running = phase === "look" || phase === "write";
@@ -179,7 +202,7 @@ export function TatRunner({ title, images }: { title: string; images: string[] }
               <>
                 <button
                   type="button"
-                  onClick={() => setPaused((p) => !p)}
+                  onClick={togglePause}
                   className="inline-flex h-10 items-center rounded-lg border border-ink/15 px-4 text-sm font-semibold text-ink hover:bg-ink/5"
                 >
                   {paused ? "Resume" : "Pause"}
