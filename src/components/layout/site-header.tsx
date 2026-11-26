@@ -24,14 +24,14 @@ export function SiteHeader() {
             <Logo className="h-9 w-auto sm:h-11 md:h-12 lg:h-14" />
           </Link>
         </div>
-        <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-10 lg:flex xl:gap-16">
+        <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-10 xl:flex xl:gap-12">
           {navLinks.map((link) =>
             link.soon ? (
               <span
                 key={link.label}
                 aria-disabled="true"
                 title="Coming soon"
-                className="flex items-center gap-2 text-lg font-medium text-ink/60 xl:text-[1.35rem]"
+                className="flex items-center gap-2 whitespace-nowrap text-lg font-medium text-ink/60 xl:text-[1.35rem]"
               >
                 {link.label}
                 <span className="rounded-md bg-sage/40 px-2 py-0.5 text-[0.6rem] font-bold tracking-[0.12em] text-olive-deep uppercase">
@@ -42,7 +42,7 @@ export function SiteHeader() {
               <Link
                 key={link.label}
                 href={link.href}
-                className="text-lg font-medium text-ink/90 transition-colors hover:text-crimson xl:text-[1.35rem]"
+                className="whitespace-nowrap text-lg font-medium text-ink/90 transition-colors hover:text-crimson xl:text-[1.35rem]"
               >
                 {link.label}
               </Link>

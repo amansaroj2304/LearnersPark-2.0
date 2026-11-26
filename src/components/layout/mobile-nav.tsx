@@ -63,13 +63,13 @@ export function MobileNav({ links }: { links: MobileNavLink[] }) {
         aria-label="Open menu"
         aria-expanded={open}
         aria-controls="mobile-menu"
-        className="-ml-1 flex h-10 w-10 items-center justify-center rounded-lg text-ink hover:bg-ink/5 lg:hidden"
+        className="-ml-1 flex h-10 w-10 items-center justify-center rounded-lg text-ink hover:bg-ink/5 xl:hidden"
       >
         <Menu className="h-6 w-6" strokeWidth={2.3} aria-hidden="true" />
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-[90] lg:hidden">
+        <div className="fixed inset-0 z-[90] xl:hidden">
           <button
             type="button"
             aria-label="Close menu"
