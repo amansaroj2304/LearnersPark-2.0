@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { DAYS, getSsbTests, isOpen, REFERENCE_NOTES, type SsbTest } from "@/lib/ssb/data";
 import { isOpamConfigured } from "@/lib/supabase/service";
+import { PRACTICE_HREF } from "@/lib/ssb/practice";
 
 export const instant = false;
 
@@ -15,11 +16,6 @@ export const metadata: Metadata = {
     "The full SSB sequence day by day: screening, psychological tests, GTO tasks, interview and conference, with practice modules as they open.",
 };
 
-/** Tests that have a runnable practice module alongside their notes. */
-const PRACTICE_HREF: Record<string, string> = {
-  ppdt: "/ppdt",
-  tat: "/tat",
-};
 const BADGE: Record<string, { label: string; cls: string }> = {
   SOON: { label: "Soon", cls: "bg-gold/20 text-[#7a5c10]" },
   AVAILABLE: { label: "Available", cls: "bg-[#2f9e5b]/12 text-[#256e42]" },
@@ -30,7 +26,11 @@ const BADGE: Record<string, { label: string; cls: string }> = {
 function TestCard({ test }: { test: SsbTest }) {
   const notes = test.reference_path ?? REFERENCE_NOTES[test.id] ?? null;
   const practice = PRACTICE_HREF[test.id] ?? null;
-  const badge = notes && !isOpen(test) ? { label: "Reference notes", cls: "bg-gold/20 text-[#7a5c10]" } : BADGE[test.status] ?? BADGE.SOON;
+  const badge = practice && !isOpen(test)
+    ? { label: "Available", cls: "bg-[#2f9e5b]/12 text-[#256e42]" }
+    : notes && !isOpen(test)
+      ? { label: "Reference notes", cls: "bg-gold/20 text-[#7a5c10]" }
+      : BADGE[test.status] ?? BADGE.SOON;
   const open = isOpen(test);
   return (
     <article className="flex flex-col rounded-2xl border border-ink/10 bg-white p-5">
