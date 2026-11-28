@@ -26,7 +26,7 @@ export const SETS: SrtSet[] = [
       "He was on his usual morning walk, when he saw a man being thrown out of a speeding taxi. He…………………..",
       "She was one of the good players of her college Hockey team but was not selected as the captain of the team. She therefore…………………..",
       "He was traveling in a train when three persons armed with knife entered the compartment and asked passengers to hand over their belongings. He……………..",
-      "While trying to reach the picnic spot ahead of others she lost her way. She…………….. Total SRTs: 60 Time: 30 min",
+      "While trying to reach the picnic spot ahead of others she lost her way. She……………..",
       "When his B Com results came his parent insisted him for joining some service whereas he ……………..",
       "She was asked to organize a function in her college. She……………..",
       "When she found that her parent differ on what she should do, she ……………..",
