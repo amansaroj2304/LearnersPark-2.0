@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { isKnownSsbTestId } from "@/lib/ssb/ids";
 
 const protectedRoutes = ["/csss/test", "/progress"];
 
@@ -34,6 +35,23 @@ export async function proxy(request: NextRequest) {
   const claims = data?.claims;
 
   const { pathname } = request.nextUrl;
+  // Unknown SSB test ids: rewrite to a path that does not exist so Next answers
+  // with a real 404 (the page itself cannot set the status once it streams).
+  const ssbIdMatch = /^\/ssb\/([^/]+)\/?$/.exec(pathname);
+  if (ssbIdMatch) {
+    let id = ssbIdMatch[1];
+    try {
+      id = decodeURIComponent(id);
+    } catch {
+      /* keep the raw segment */
+    }
+    if (!isKnownSsbTestId(id)) {
+      const notFoundUrl = request.nextUrl.clone();
+      notFoundUrl.pathname = "/404-page-not-found";
+      notFoundUrl.search = "";
+      return NextResponse.rewrite(notFoundUrl);
+    }
+  }
 
   const publicAdminRoutes = ["/admin/login", "/admin/reset-password"];
   if (
