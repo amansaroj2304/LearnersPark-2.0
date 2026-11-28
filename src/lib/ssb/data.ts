@@ -32,6 +32,8 @@ export const REFERENCE_NOTES: Record<string, string> = {
 
 export const STATUSES: SsbStatus[] = ["SOON", "AVAILABLE", "LIVE", "COMPLETED"];
 
+export { isKnownSsbTestId, SSB_TEST_IDS } from "@/lib/ssb/ids";
+
 export async function getSsbTests(): Promise<SsbTest[]> {
   const client = getServiceClient();
   if (!client) return [];

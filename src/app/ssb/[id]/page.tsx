@@ -1,16 +1,30 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Container } from "@/components/ui/container";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
-import { getSsbTest, isOpen } from "@/lib/ssb/data";
+import { getSsbTest, isKnownSsbTestId, isOpen } from "@/lib/ssb/data";
 
 export const instant = false;
 
-export default async function SsbTestPage({ params }: { params: Promise<{ id: string }> }) {
-  await connection();
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
+  if (!isKnownSsbTestId(id)) return { title: "Page not found | Learners Park" };
+  const test = await getSsbTest(id).catch(() => null);
+  if (!test) return { title: "Page not found | Learners Park" };
+  return {
+    title: `${test.name} (${test.full_form}) — SSB practice | Learners Park`,
+    description: test.description,
+  };
+}
+
+export default async function SsbTestPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  // Reject unknown ids before the dynamic shell is streamed, so the status is a real 404.
+  if (!isKnownSsbTestId(id)) notFound();
+  await connection();
   const test = await getSsbTest(id).catch(() => null);
   if (!test) notFound();
 
