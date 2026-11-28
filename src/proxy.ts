@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { isKnownSsbTestId } from "@/lib/ssb/ids";
+import { DOSSIER_DAY_COUNT, isSetInRange, PPDT_SET_SLUGS, TAT_SET_COUNT, WAT_SET_COUNT } from "@/lib/routes/limits";
 
 const protectedRoutes = ["/csss/test", "/progress"];
 
@@ -37,6 +38,24 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   // Unknown SSB test ids: rewrite to a path that does not exist so Next answers
   // with a real 404 (the page itself cannot set the status once it streams).
+  const setMatch = /^\/(wat|tat)\/set\/([^/]+)\/?$/.exec(pathname);
+  const dossierMatch = /^\/dossier\/([^/]+)\/?$/.exec(pathname);
+  const isUnknownPractice = setMatch
+    ? !isSetInRange(setMatch[2], setMatch[1] === "wat" ? WAT_SET_COUNT : TAT_SET_COUNT)
+    : dossierMatch
+      ? !isSetInRange(dossierMatch[1], DOSSIER_DAY_COUNT)
+      : false;
+  const ppdtSetMatch = /^\/ppdt\/sets\/([^/]+)\/?$/.exec(pathname);
+  const isUnknownPpdtSet = ppdtSetMatch
+    ? !(PPDT_SET_SLUGS as readonly string[]).includes(decodeURIComponent(ppdtSetMatch[1]))
+    : false;
+  if (isUnknownPractice || isUnknownPpdtSet) {
+    const notFoundUrl = request.nextUrl.clone();
+    notFoundUrl.pathname = "/404-page-not-found";
+    notFoundUrl.search = "";
+    return NextResponse.rewrite(notFoundUrl);
+  }
+
   const ssbIdMatch = /^\/ssb\/([^/]+)\/?$/.exec(pathname);
   if (ssbIdMatch) {
     let id = ssbIdMatch[1];

@@ -6,6 +6,7 @@ import { Container } from "@/components/ui/container";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { getSsbTest, isKnownSsbTestId, isOpen } from "@/lib/ssb/data";
+import { PRACTICE_HREF } from "@/lib/ssb/practice";
 
 export const instant = false;
 
@@ -35,10 +36,24 @@ export default async function SsbTestPage({ params }: { params: Promise<{ id: st
         <main className="bg-bg-light">
           <Container className="py-16">
             <h1 className="text-2xl font-extrabold text-ink">{test.name} is not open yet</h1>
-            <p className="mt-2 text-sm text-ink/65">This practice module will be available soon.</p>
-            <Link href="/ssb" className="mt-6 inline-flex h-10 items-center rounded-lg bg-crimson px-5 text-sm font-semibold text-white">
-              Back to SSB
-            </Link>
+            <p className="mt-2 text-sm text-ink/65">
+              {PRACTICE_HREF[test.id]
+                ? "The practice module is live — start practising there while the formal test window is closed."
+                : "This practice module will be available soon."}
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              {PRACTICE_HREF[test.id] ? (
+                <Link href={PRACTICE_HREF[test.id]} className="inline-flex h-10 items-center rounded-lg bg-crimson px-5 text-sm font-semibold text-white">
+                  Practice
+                </Link>
+              ) : null}
+              <Link
+                href="/ssb"
+                className={`inline-flex h-10 items-center rounded-lg px-5 text-sm font-semibold ${PRACTICE_HREF[test.id] ? "border border-ink/15 text-ink hover:bg-ink/5" : "bg-crimson text-white"}`}
+              >
+                Back to SSB
+              </Link>
+            </div>
           </Container>
         </main>
         <SiteFooter />
