@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { isKnownSsbTestId } from "@/lib/ssb/ids";
-import { DOSSIER_DAY_COUNT, isSetInRange, PPDT_SET_SLUGS, TAT_SET_COUNT, WAT_SET_COUNT } from "@/lib/routes/limits";
+import { DOSSIER_DAY_COUNT, isSetInRange, PPDT_SET_SLUGS, SRT_SET_SLUGS, TAT_SET_COUNT, WAT_SET_COUNT } from "@/lib/routes/limits";
 
 const protectedRoutes = ["/csss/test", "/progress"];
 
@@ -49,7 +49,11 @@ export async function proxy(request: NextRequest) {
   const isUnknownPpdtSet = ppdtSetMatch
     ? !(PPDT_SET_SLUGS as readonly string[]).includes(decodeURIComponent(ppdtSetMatch[1]))
     : false;
-  if (isUnknownPractice || isUnknownPpdtSet) {
+  const srtSetMatch = /^\/srt\/set\/([^/]+)\/?$/.exec(pathname);
+  const isUnknownSrtSet = srtSetMatch
+    ? !(SRT_SET_SLUGS as readonly string[]).includes(decodeURIComponent(srtSetMatch[1]))
+    : false;
+  if (isUnknownPractice || isUnknownPpdtSet || isUnknownSrtSet) {
     const notFoundUrl = request.nextUrl.clone();
     notFoundUrl.pathname = "/404-page-not-found";
     notFoundUrl.search = "";
